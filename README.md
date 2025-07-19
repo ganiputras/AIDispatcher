@@ -16,3 +16,20 @@ AIDispatcher is an extensible CQRS dispatcher and pipeline system, built to repl
 
 ```bash
 dotnet add package AIDispatcher
+```
+
+## ✨ Used
+
+```bash
+  public record MyCommand(string Name) : IRequest<string>;
+  
+  public class MyCommandHandler : IDispatcherHandler<MyCommand, string>
+  {
+      public Task<string> HandleAsync(MyCommand request, CancellationToken cancellationToken)
+      {
+          return Task.FromResult($"Hello {request.Name}");
+      }
+  }
+```
+```bash
+  var result = await dispatcher.Send(new MyCommand("World"));

@@ -12,9 +12,20 @@ var builder = Host.CreateApplicationBuilder(args);
 // Logging
 builder.Logging.AddConsole();
 
-// Registrasi Dispatcher + Validator
-//builder.Services.AddAIDispatcher(typeof(CreateUserValidator).Assembly);
-builder.Services.AddAIDispatcher(typeof(Program).Assembly);
+// Registrasi 
+//builder.Services.AddAIDispatcher(typeof(CreateUserValidator).Assembly); 
+//builder.Services.AddAIDispatcher(typeof(Program).Assembly);
+//builder.Services.AddAIDispatcher(options =>
+//{
+//    options.ParallelNotificationHandlers = true;
+//    options.NotificationHandlerPriorityEnabled = true;
+//});
+
+builder.Services.AddAIDispatcher(options =>
+{
+    options.ParallelNotificationHandlers = true;
+    options.NotificationHandlerPriorityEnabled = true;
+}, typeof(Program).Assembly);
 
 // OpenTelemetry
 builder.Services.AddOpenTelemetry()

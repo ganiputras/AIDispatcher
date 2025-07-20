@@ -1,10 +1,10 @@
 ﻿namespace AIDispatcher.Notification;
 
 /// <summary>
-///     Interface for publishing notifications to one or more handlers.
+/// Interface untuk mendispatch notifikasi ke handler-handler.
 /// </summary>
 public interface INotificationDispatcher
 {
     Task PublishAsync<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
-        where TNotification : INotification;
+        where TNotification : notnull;
 }

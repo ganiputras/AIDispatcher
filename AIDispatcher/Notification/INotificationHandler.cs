@@ -1,10 +1,10 @@
 ﻿namespace AIDispatcher.Notification;
 
 /// <summary>
-///     Interface for handling notifications (events).
+/// Interface untuk menangani notifikasi berbasis event.
 /// </summary>
-/// <typeparam name="TNotification">The type of notification.</typeparam>
-public interface INotificationHandler<in TNotification> where TNotification : INotification
+public interface INotificationHandler<in TNotification>
+    where TNotification : notnull
 {
-    Task HandleAsync(TNotification notification, CancellationToken cancellationToken = default);
+    Task Handle(TNotification notification, CancellationToken cancellationToken = default);
 }

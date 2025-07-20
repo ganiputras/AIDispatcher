@@ -18,12 +18,12 @@ public class PrePostProcessorBehavior<TRequest, TResponse> : IDispatcherBehavior
     }
 
     public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken,
-        DispatcherHandlerDelegate<TResponse> next)
+        Func<CancellationToken, Task<TResponse>> next)
     {
         foreach (var pre in _preProcessors)
             await pre.ProcessAsync(request, cancellationToken);
 
-        var response = await next();
+        var response = await next(cancellationToken);
 
         foreach (var post in _postProcessors)
             await post.ProcessAsync(request, response, cancellationToken);

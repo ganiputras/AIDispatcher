@@ -23,10 +23,9 @@ public class CircuitBreakerBehavior<TRequest, TResponse> : IDispatcherBehavior<T
         _failureThreshold = failureThreshold;
     }
 
-    public async Task<TResponse> HandleAsync(
-        TRequest request,
+    public async Task<TResponse> HandleAsync(TRequest request,
         CancellationToken cancellationToken,
-        DispatcherHandlerDelegate<TResponse> next)
+        Func<CancellationToken, Task<TResponse>> next)
     {
         var key = typeof(TRequest).FullName ?? typeof(TRequest).Name;
 
@@ -38,7 +37,7 @@ public class CircuitBreakerBehavior<TRequest, TResponse> : IDispatcherBehavior<T
 
         try
         {
-            var response = await next();
+            var response = await next(cancellationToken);
             FailureCounts.TryRemove(key, out _);
             return response;
         }
@@ -51,10 +50,3 @@ public class CircuitBreakerBehavior<TRequest, TResponse> : IDispatcherBehavior<T
     }
 }
 
-//public static IServiceCollection AddCoreBehaviors(this IServiceCollection services)
-//{
-//    services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
-//    services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(RetryBehavior<,>));
-//    services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(CircuitBreakerBehavior<,>));
-//    return services;
-//}

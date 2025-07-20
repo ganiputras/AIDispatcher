@@ -30,6 +30,7 @@ public static class DispatcherExtensions
         services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(DispatcherMetricsBehavior<,>));
         services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(RetryBehavior<,>));
         services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(CircuitBreakerBehavior<,>));
+        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TimeoutBehavior<,>));
 
         // Assembly scanning
         foreach (var assembly in assemblies)
@@ -43,6 +44,11 @@ public static class DispatcherExtensions
             // PostProcessors
             RegisterImplementations(services, assembly, typeof(IRequestPostProcessor<,>));
         }
+
+        services.Configure<DispatcherOptions>(options =>
+        {
+            options.DefaultTimeout = TimeSpan.FromSeconds(30); // You can override this later
+        });
 
         return services;
     }

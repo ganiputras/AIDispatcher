@@ -20,7 +20,8 @@ public class ValidationBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequ
         _validators = validators;
     }
 
-    public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken, DispatcherHandlerDelegate<TResponse> next)
+    public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken,
+        Func<CancellationToken, Task<TResponse>> next)
     {
         if (_validators.Any())
         {
@@ -37,6 +38,6 @@ public class ValidationBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequ
             }
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

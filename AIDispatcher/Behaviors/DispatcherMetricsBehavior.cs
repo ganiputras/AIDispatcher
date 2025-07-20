@@ -22,7 +22,8 @@ public class DispatcherMetricsBehavior<TRequest, TResponse> : IDispatcherBehavio
         _logger = logger;
     }
 
-    public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken, DispatcherHandlerDelegate<TResponse> next)
+    public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken,
+        Func<CancellationToken, Task<TResponse>> next)
     {
         var requestName = typeof(TRequest).Name;
         var startTime = DateTime.UtcNow;
@@ -31,7 +32,7 @@ public class DispatcherMetricsBehavior<TRequest, TResponse> : IDispatcherBehavio
 
         try
         {
-            var response = await next();
+            var response = await next(cancellationToken);
 
             RequestCounter.Add(1, KeyValuePair.Create<string, object?>("request_type", requestName));
             DurationHistogram.Record((DateTime.UtcNow - startTime).TotalMilliseconds, KeyValuePair.Create<string, object?>("request_type", requestName));

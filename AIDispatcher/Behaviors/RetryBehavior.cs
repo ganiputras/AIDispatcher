@@ -19,15 +19,14 @@ public class RetryBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest, 
         _maxRetries = maxRetries;
     }
 
-    public async Task<TResponse> HandleAsync(
-        TRequest request,
+    public async Task<TResponse> HandleAsync(TRequest request,
         CancellationToken cancellationToken,
-        DispatcherHandlerDelegate<TResponse> next)
+        Func<CancellationToken, Task<TResponse>> next)
     {
         for (var attempt = 1; ; attempt++)
             try
             {
-                return await next();
+                return await next(cancellationToken);
             }
             catch (Exception ex) when (attempt <= _maxRetries)
             {

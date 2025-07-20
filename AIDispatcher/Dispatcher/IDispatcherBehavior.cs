@@ -15,7 +15,8 @@ public interface IDispatcherBehavior<TRequest, TResponse>
     /// <param name="cancellationToken">Token pembatalan.</param>
     /// <param name="next">Delegasi ke handler selanjutnya dalam pipeline.</param>
     /// <returns>Respons dari permintaan.</returns>
-    Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken, DispatcherHandlerDelegate<TResponse> next);
+    Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken,
+        Func<CancellationToken, Task<TResponse>> next);
 }
 
 

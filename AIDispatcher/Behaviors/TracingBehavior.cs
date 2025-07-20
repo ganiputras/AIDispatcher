@@ -22,7 +22,8 @@ public class TracingBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest
         _logger = logger;
     }
 
-    public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken, DispatcherHandlerDelegate<TResponse> next)
+    public async Task<TResponse> HandleAsync(TRequest request, CancellationToken cancellationToken,
+        Func<CancellationToken, Task<TResponse>> next)
     {
         var requestName = typeof(TRequest).Name;
 
@@ -38,7 +39,7 @@ public class TracingBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest
 
         try
         {
-            var response = await next();
+            var response = await next(cancellationToken);
 
             if (activity != null)
             {

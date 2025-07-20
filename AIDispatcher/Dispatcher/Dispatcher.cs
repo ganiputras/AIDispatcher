@@ -25,14 +25,15 @@ public class Dispatcher : IDispatcher
         var handler = _serviceProvider.GetRequiredService<IDispatcherHandler<TRequest, TResponse>>();
         var behaviors = _serviceProvider.GetServices<IDispatcherBehavior<TRequest, TResponse>>().ToList();
 
-        DispatcherHandlerDelegate<TResponse> handlerDelegate = () => handler.HandleAsync(request, cancellationToken);
+        Func<CancellationToken, Task<TResponse>> handlerDelegate = ct => handler.HandleAsync(request, ct);
 
         foreach (var behavior in behaviors.AsEnumerable().Reverse())
         {
             var next = handlerDelegate;
-            handlerDelegate = () => behavior.HandleAsync(request, cancellationToken, next);
+            handlerDelegate = ct => behavior.HandleAsync(request, ct, next);
         }
 
-        return await handlerDelegate();
+        // Jalankan pipeline
+        return await handlerDelegate(cancellationToken);
     }
 }

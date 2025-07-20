@@ -16,10 +16,9 @@ public class ObservabilityBehavior<TRequest, TResponse> : IDispatcherBehavior<TR
         _logger = logger;
     }
 
-    public async Task<TResponse> HandleAsync(
-        TRequest request,
+    public async Task<TResponse> HandleAsync(TRequest request,
         CancellationToken cancellationToken,
-        DispatcherHandlerDelegate<TResponse> next)
+        Func<CancellationToken, Task<TResponse>> next)
     {
         var requestName = typeof(TRequest).Name;
 
@@ -32,7 +31,7 @@ public class ObservabilityBehavior<TRequest, TResponse> : IDispatcherBehavior<TR
 
         try
         {
-            var response = await next();
+            var response = await next(cancellationToken);
 
             _logger.LogInformation("Successfully handled request {RequestType}", requestName);
             activity?.SetTag("request.success", true);

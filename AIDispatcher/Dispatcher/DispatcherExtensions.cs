@@ -60,7 +60,7 @@ public static class DispatcherExtensions
         else
         {
             // Default behaviors
-            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
+            //services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(PrePostProcessorBehavior<,>));
             services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TracingBehavior<,>));
             services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(DispatcherMetricsBehavior<,>));
@@ -98,7 +98,8 @@ public static class DispatcherExtensions
         {
             // Hindari duplicate registration
             if (!services.Any(s =>
-                    s.ServiceType == reg.Interface &&
+                    s.ServiceType.IsGenericType &&
+                    s.ServiceType.GetGenericTypeDefinition() == reg.Interface.GetGenericTypeDefinition() &&
                     s.ImplementationType == reg.Implementation))
             {
                 services.AddScoped(reg.Interface, reg.Implementation);

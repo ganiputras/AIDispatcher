@@ -1,4 +1,6 @@
 ﻿using AIDispatcher;
+using AIDispatcher.Behaviors;
+using AIDispatcher.Dispatcher;
 using AIDispatcher.SampleApp.Handlers;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +16,7 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole();
 
 
-
+builder.Services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddValidatorsFromAssembly(typeof(CreateUserCommand).Assembly);
 
 // Registrasi 

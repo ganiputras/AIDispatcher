@@ -1,14 +1,14 @@
-﻿using AIDispatcher.Dispatcher;
+﻿using System.Diagnostics;
+using AIDispatcher.Dispatcher;
 using AIDispatcher.Observability;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry.Trace;
-using System.Diagnostics;
 
 namespace AIDispatcher.Behaviors;
 
 /// <summary>
-/// Adds distributed tracing support to the dispatcher pipeline using ActivitySource.
-/// Compatible with OpenTelemetry, Jaeger, Zipkin, or other tracing systems.
+///     Adds distributed tracing support to the dispatcher pipeline using ActivitySource.
+///     Compatible with OpenTelemetry, Jaeger, Zipkin, or other tracing systems.
 /// </summary>
 /// <typeparam name="TRequest">The request type.</typeparam>
 /// <typeparam name="TResponse">The response type.</typeparam>
@@ -27,7 +27,7 @@ public class TracingBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest
     {
         var requestName = typeof(TRequest).Name;
 
-        using var activity = ActivitySource.StartActivity($"Dispatcher.{requestName}", ActivityKind.Internal);
+        using var activity = ActivitySource.StartActivity($"Dispatcher.{requestName}");
 
         if (activity != null)
         {
@@ -41,10 +41,7 @@ public class TracingBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest
         {
             var response = await next(cancellationToken);
 
-            if (activity != null)
-            {
-                activity.SetTag("dispatcher.success", true);
-            }
+            if (activity != null) activity.SetTag("dispatcher.success", true);
 
             return response;
         }

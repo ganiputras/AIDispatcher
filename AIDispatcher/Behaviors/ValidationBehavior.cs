@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 namespace AIDispatcher.Behaviors;
 
 /// <summary>
-/// Behavior pipeline untuk validasi menggunakan FluentValidation.
+///     Behavior pipeline untuk validasi menggunakan FluentValidation.
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TResponse"></typeparam>
@@ -14,7 +14,8 @@ public class ValidationBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequ
     private readonly ILogger<ValidationBehavior<TRequest, TResponse>> _logger;
     private readonly IEnumerable<IValidator<TRequest>> _validators;
 
-    public ValidationBehavior(ILogger<ValidationBehavior<TRequest, TResponse>> logger, IEnumerable<IValidator<TRequest>> validators)
+    public ValidationBehavior(ILogger<ValidationBehavior<TRequest, TResponse>> logger,
+        IEnumerable<IValidator<TRequest>> validators)
     {
         _logger = logger;
         _validators = validators;
@@ -33,7 +34,8 @@ public class ValidationBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequ
 
             if (failures.Any())
             {
-                _logger.LogWarning("Validation failed for request {RequestType}: {Failures}", typeof(TRequest).Name, failures);
+                _logger.LogWarning("Validation failed for request {RequestType}: {Failures}", typeof(TRequest).Name,
+                    failures);
                 throw new ValidationException(failures);
             }
         }

@@ -1,11 +1,11 @@
-﻿using AIDispatcher.Dispatcher;
+﻿using System.Collections.Concurrent;
+using AIDispatcher.Dispatcher;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 
 namespace AIDispatcher.Behaviors;
 
 /// <summary>
-/// Behavior untuk memblokir request jika jumlah error melebihi ambang batas.
+///     Behavior untuk memblokir request jika jumlah error melebihi ambang batas.
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TResponse"></typeparam>
@@ -49,4 +49,3 @@ public class CircuitBreakerBehavior<TRequest, TResponse> : IDispatcherBehavior<T
         }
     }
 }
-

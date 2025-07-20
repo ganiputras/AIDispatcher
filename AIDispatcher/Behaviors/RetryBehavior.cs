@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace AIDispatcher.Behaviors;
 
 /// <summary>
-///  Behavior untuk mengulangi eksekusi handler saat terjadi exception.
+///     Behavior untuk mengulangi eksekusi handler saat terjadi exception.
 /// </summary>
 /// <typeparam name="TRequest"></typeparam>
 /// <typeparam name="TResponse"></typeparam>
@@ -23,7 +23,7 @@ public class RetryBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest, 
         CancellationToken cancellationToken,
         Func<CancellationToken, Task<TResponse>> next)
     {
-        for (var attempt = 1; ; attempt++)
+        for (var attempt = 1;; attempt++)
             try
             {
                 return await next(cancellationToken);

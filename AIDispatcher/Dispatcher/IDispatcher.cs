@@ -1,15 +1,15 @@
 ﻿namespace AIDispatcher.Dispatcher;
 
 /// <summary>
-/// Antarmuka utama dispatcher.
-/// Mirip dengan MediatR.IMediator, digunakan untuk mengirim permintaan ke handler yang terdaftar,
-/// melalui pipeline behavior yang dikonfigurasi.
+///     Antarmuka utama dispatcher.
+///     Mirip dengan MediatR.IMediator, digunakan untuk mengirim permintaan ke handler yang terdaftar,
+///     melalui pipeline behavior yang dikonfigurasi.
 /// </summary>
 public interface IDispatcher
 {
     /// <summary>
-    /// Mengirim permintaan (request) ke handler yang sesuai dan mengembalikan respons.
-    /// Eksekusi akan melewati semua behavior yang telah dikonfigurasi (seperti validasi, logging, dll).
+    ///     Mengirim permintaan (request) ke handler yang sesuai dan mengembalikan respons.
+    ///     Eksekusi akan melewati semua behavior yang telah dikonfigurasi (seperti validasi, logging, dll).
     /// </summary>
     /// <typeparam name="TRequest">Tipe permintaan.</typeparam>
     /// <typeparam name="TResponse">Tipe hasil dari permintaan.</typeparam>

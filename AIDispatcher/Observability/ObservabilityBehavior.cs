@@ -1,8 +1,9 @@
-﻿using AIDispatcher.Dispatcher;
+﻿using System.Diagnostics;
+using AIDispatcher.Dispatcher;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace AIDispatcher.Observability;
+
 // <summary>
 /// Adds OpenTelemetry tracing and logging around the request pipeline.
 /// </summary>
@@ -22,7 +23,7 @@ public class ObservabilityBehavior<TRequest, TResponse> : IDispatcherBehavior<TR
     {
         var requestName = typeof(TRequest).Name;
 
-        using var activity = ActivitySource.StartActivity($"AIDispatcher: {requestName}", ActivityKind.Internal);
+        using var activity = ActivitySource.StartActivity($"AIDispatcher: {requestName}");
 
         _logger.LogInformation("Handling request {RequestType}", requestName);
 

@@ -3,11 +3,9 @@ using Microsoft.Extensions.Options;
 
 namespace AIDispatcher.Behaviors;
 
-
-
 /// <summary>
-/// Dispatcher behavior to enforce a timeout on request execution.
-/// If the request exceeds the configured duration, a TimeoutException is thrown.
+///     Dispatcher behavior to enforce a timeout on request execution.
+///     If the request exceeds the configured duration, a TimeoutException is thrown.
 /// </summary>
 public class TimeoutBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest, TResponse>
 {
@@ -35,7 +33,8 @@ public class TimeoutBehavior<TRequest, TResponse> : IDispatcherBehavior<TRequest
         }
         catch (OperationCanceledException) when (timeoutCts.IsCancellationRequested)
         {
-            throw new TimeoutException($"Request of type '{typeof(TRequest).Name}' timed out after {_timeout.TotalMilliseconds}ms.");
+            throw new TimeoutException(
+                $"Request of type '{typeof(TRequest).Name}' timed out after {_timeout.TotalMilliseconds}ms.");
         }
     }
 }

@@ -7,12 +7,12 @@ using System.Reflection;
 namespace AIDispatcher.Dispatcher;
 
 /// <summary>
-/// Extension methods for registering AIDispatcher services into the service collection.
+///     Extension methods for registering AIDispatcher services into the service collection.
 /// </summary>
 public static class DispatcherExtensions
 {
     /// <summary>
-    /// Registers all Dispatcher handlers, behaviors, and related services from the specified assemblies.
+    ///     Registers all Dispatcher handlers, behaviors, and related services from the specified assemblies.
     /// </summary>
     /// <param name="services">The IServiceCollection to register into.</param>
     /// <param name="assemblies">Assemblies to scan for handlers and processors.</param>
@@ -21,6 +21,7 @@ public static class DispatcherExtensions
     {
         // Core dispatcher
         services.AddScoped<IDispatcher, Dispatcher>();
+        services.AddScoped<IDispatcherRoot, DispatcherRoot>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
         // Behaviors (Pipeline)
@@ -62,9 +63,6 @@ public static class DispatcherExtensions
             .Where(x => x.Interface.IsGenericType && x.Interface.GetGenericTypeDefinition() == interfaceType)
             .ToList();
 
-        foreach (var type in types)
-        {
-            services.AddScoped(type.Interface, type.Type);
-        }
+        foreach (var type in types) services.AddScoped(type.Interface, type.Type);
     }
 }

@@ -1,11 +1,11 @@
-﻿using AIDispatcher.Dispatcher;
+﻿using System.Diagnostics.Metrics;
+using AIDispatcher.Dispatcher;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics.Metrics;
 
 namespace AIDispatcher.Behaviors;
 
 /// <summary>
-/// Emits metrics for dispatched requests, compatible with OpenTelemetry Metrics (e.g., Prometheus/Grafana).
+///     Emits metrics for dispatched requests, compatible with OpenTelemetry Metrics (e.g., Prometheus/Grafana).
 /// </summary>
 /// <typeparam name="TRequest">The request type.</typeparam>
 /// <typeparam name="TResponse">The response type.</typeparam>
@@ -13,7 +13,9 @@ public class DispatcherMetricsBehavior<TRequest, TResponse> : IDispatcherBehavio
 {
     private static readonly Meter Meter = new("AIDispatcher.Metrics");
     private static readonly Counter<long> RequestCounter = Meter.CreateCounter<long>("dispatcher_requests_total");
-    private static readonly Histogram<double> DurationHistogram = Meter.CreateHistogram<double>("dispatcher_duration_ms");
+
+    private static readonly Histogram<double> DurationHistogram =
+        Meter.CreateHistogram<double>("dispatcher_duration_ms");
 
     private readonly ILogger<DispatcherMetricsBehavior<TRequest, TResponse>> _logger;
 
@@ -35,13 +37,15 @@ public class DispatcherMetricsBehavior<TRequest, TResponse> : IDispatcherBehavio
             var response = await next(cancellationToken);
 
             RequestCounter.Add(1, KeyValuePair.Create<string, object?>("request_type", requestName));
-            DurationHistogram.Record((DateTime.UtcNow - startTime).TotalMilliseconds, KeyValuePair.Create<string, object?>("request_type", requestName));
+            DurationHistogram.Record((DateTime.UtcNow - startTime).TotalMilliseconds,
+                KeyValuePair.Create<string, object?>("request_type", requestName));
 
             return response;
         }
         catch (Exception ex)
         {
-            RequestCounter.Add(1, new KeyValuePair<string, object?>[] {
+            RequestCounter.Add(1, new KeyValuePair<string, object?>[]
+            {
                 new("request_type", requestName),
                 new("exception", ex.GetType().Name)
             });

@@ -3,18 +3,13 @@
 namespace AIDispatcher.Dispatcher;
 
 /// <summary>
-/// Represents a standardized validation exception used by the dispatcher pipeline.
-/// It wraps FluentValidation errors and exposes simplified error messages for consumers.
+///     Represents a standardized validation exception used by the dispatcher pipeline.
+///     It wraps FluentValidation errors and exposes simplified error messages for consumers.
 /// </summary>
 public class DispatcherValidationException : Exception
 {
     /// <summary>
-    /// The list of validation errors.
-    /// </summary>
-    public IReadOnlyList<ValidationFailure> Errors { get; }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DispatcherValidationException"/> class.
+    ///     Initializes a new instance of the <see cref="DispatcherValidationException" /> class.
     /// </summary>
     /// <param name="failures">The list of validation failures.</param>
     public DispatcherValidationException(IEnumerable<ValidationFailure> failures)
@@ -24,7 +19,12 @@ public class DispatcherValidationException : Exception
     }
 
     /// <summary>
-    /// Returns a flat list of validation error messages.
+    ///     The list of validation errors.
+    /// </summary>
+    public IReadOnlyList<ValidationFailure> Errors { get; }
+
+    /// <summary>
+    ///     Returns a flat list of validation error messages.
     /// </summary>
     public override string ToString()
     {

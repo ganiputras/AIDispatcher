@@ -61,7 +61,7 @@ public static class DispatcherExtensions
         else
         {
             // Default behaviors
-            //services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
             services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(PrePostProcessorBehavior<,>));
             services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TracingBehavior<,>));
             services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(DispatcherMetricsBehavior<,>));
@@ -75,13 +75,7 @@ public static class DispatcherExtensions
         }
 
 
-        //var distinctAssemblies = AppDomain.CurrentDomain
-        //    .GetAssemblies()
-        //    .Where(a => !a.IsDynamic)
-        //    .GroupBy(a => a.FullName)
-        //    .Select(g => g.First());
 
-        //foreach (var assembly in distinctAssemblies) services.AddValidatorsFromAssembly(assembly);
 
         return services;
     }

@@ -1,6 +1,4 @@
 ﻿using AIDispatcher;
-using AIDispatcher.Behaviors;
-using AIDispatcher.Dispatcher;
 using AIDispatcher.SampleApp.Handlers;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,8 +14,19 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole();
 
 
-builder.Services.AddValidatorsFromAssembly(typeof(CreateUserCommand).Assembly);
-builder.Services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
+var distinctAssemblies = AppDomain.CurrentDomain
+    .GetAssemblies()
+    .Where(a => !a.IsDynamic)
+    .GroupBy(a => a.FullName)
+    .Select(g => g.First());
+
+foreach (var assembly in distinctAssemblies)
+{
+    builder.Services.AddValidatorsFromAssembly(assembly);
+}
+
+
+//builder.Services.AddValidatorsFromAssembly(typeof(CreateUserCommand).Assembly);
 // Registrasi 
 builder.Services.AddAIDispatcher(assemblies: typeof(Program).Assembly);
 

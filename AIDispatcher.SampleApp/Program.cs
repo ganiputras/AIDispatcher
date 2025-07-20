@@ -14,15 +14,8 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole();
 
 
-var distinctAssemblies = AppDomain.CurrentDomain
-    .GetAssemblies()
-    .Where(a => !a.IsDynamic)
-    .GroupBy(a => a.FullName)
-    .Select(g => g.First());
 
-foreach (var assembly in distinctAssemblies) builder.Services.AddValidatorsFromAssembly(assembly);
-
-//builder.Services.AddValidatorsFromAssembly(typeof(CreateUserCommand).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(CreateUserCommand).Assembly);
 
 // Registrasi 
 builder.Services.AddAIDispatcher(assemblies: typeof(Program).Assembly);

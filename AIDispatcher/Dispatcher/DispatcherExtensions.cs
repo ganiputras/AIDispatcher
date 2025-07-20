@@ -2,6 +2,7 @@
 using AIDispatcher.Dispatcher;
 using AIDispatcher.Notification;
 using AIDispatcher.PrePostProcessor;
+using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
@@ -71,6 +72,15 @@ public static class DispatcherExtensions
             services.AddScoped(typeof(INotificationBehavior<>), typeof(RetryNotificationBehavior<>));
             services.AddScoped(typeof(INotificationBehavior<>), typeof(MetricsNotificationBehavior<>));
         }
+
+
+        //var distinctAssemblies = AppDomain.CurrentDomain
+        //    .GetAssemblies()
+        //    .Where(a => !a.IsDynamic)
+        //    .GroupBy(a => a.FullName)
+        //    .Select(g => g.First());
+
+        //foreach (var assembly in distinctAssemblies) services.AddValidatorsFromAssembly(assembly);
 
         return services;
     }

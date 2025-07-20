@@ -1,8 +1,13 @@
 namespace AIDispatcher.Dispatcher;
 
+
 /// <summary>
-///     Delegate yang mewakili fungsi handler berikutnya dalam pipeline.
-///     Digunakan untuk meneruskan eksekusi ke behavior selanjutnya atau handler akhir.
+///     Delegate untuk menangani eksekusi lanjutan dalam pipeline dispatcher.
+///     <para>
+///         Digunakan oleh setiap <see cref="IDispatcherBehavior{TRequest, TResponse}" /> untuk memanggil langkah selanjutnya dalam pipeline.
+///     </para>
 /// </summary>
-/// <typeparam name="TResponse">Tipe respons yang dikembalikan.</typeparam>
-public delegate Task<TResponse> DispatcherHandlerDelegate<TResponse>();
+/// <typeparam name="TResponse">Tipe hasil yang dikembalikan oleh handler.</typeparam>
+/// <returns>Task yang menghasilkan <typeparamref name="TResponse" />.</returns>
+
+public delegate Task<TResponse> DispatcherHandlerDelegate<TResponse>(CancellationToken cancellationToken);

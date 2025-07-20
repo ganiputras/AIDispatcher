@@ -3,15 +3,18 @@
 namespace AIDispatcher.Dispatcher;
 
 /// <summary>
-///     Represents a standardized validation exception used by the dispatcher pipeline.
-///     It wraps FluentValidation errors and exposes simplified error messages for consumers.
+///     Exception standar untuk validasi yang digunakan dalam pipeline dispatcher.
+///     Exception ini membungkus daftar kesalahan validasi dari FluentValidation,
+///     dan menyederhanakan penyajian pesan error kepada konsumen (pengguna atau developer).
 /// </summary>
 public class DispatcherValidationException : Exception
 {
     /// <summary>
-    ///     Initializes a new instance of the <see cref="DispatcherValidationException" /> class.
+    ///     Membuat instance baru dari <see cref="DispatcherValidationException"/>.
     /// </summary>
-    /// <param name="failures">The list of validation failures.</param>
+    /// <param name="failures">
+    ///     Daftar hasil validasi yang gagal. Biasanya berasal dari FluentValidation.
+    /// </param>
     public DispatcherValidationException(IEnumerable<ValidationFailure> failures)
         : base("One or more validation failures have occurred.")
     {
@@ -19,12 +22,13 @@ public class DispatcherValidationException : Exception
     }
 
     /// <summary>
-    ///     The list of validation errors.
+    ///     Daftar lengkap kesalahan validasi yang terjadi.
     /// </summary>
     public IReadOnlyList<ValidationFailure> Errors { get; }
 
     /// <summary>
-    ///     Returns a flat list of validation error messages.
+    ///     Mengembalikan pesan error dalam format teks yang mudah dibaca.
+    ///     Setiap kesalahan ditampilkan dalam format <c>- NamaProperti: PesanError</c>.
     /// </summary>
     public override string ToString()
     {

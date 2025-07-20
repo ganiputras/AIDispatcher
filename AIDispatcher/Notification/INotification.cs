@@ -1,8 +1,10 @@
-﻿namespace AIDispatcher.Notification;
-
-/// <summary>
-///     Marker interface for notifications (events).
-/// </summary>
-public interface INotification
+﻿namespace AIDispatcher.Notification
 {
+    /// <summary>
+    /// Interface penanda untuk notifikasi (event).
+    /// Digunakan sebagai tipe dasar untuk semua notifikasi dalam sistem.
+    /// </summary>
+    public interface INotification
+    {
+    }
 }

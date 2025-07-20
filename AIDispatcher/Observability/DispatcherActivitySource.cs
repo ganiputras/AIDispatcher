@@ -1,19 +1,21 @@
 ﻿using System.Diagnostics;
 
-namespace AIDispatcher.Observability;
-
-/// <summary>
-///     Global ActivitySource used for tracing AIDispatcher activities via OpenTelemetry.
-/// </summary>
-public static class DispatcherActivitySource
+namespace AIDispatcher.Observability
 {
     /// <summary>
-    ///     The shared activity source name. Can be configured in observability dashboards (e.g., Jaeger, Zipkin).
+    /// ActivitySource global yang digunakan untuk tracing aktivitas AIDispatcher melalui OpenTelemetry.
     /// </summary>
-    public const string Name = "AIDispatcher";
+    public static class DispatcherActivitySource
+    {
+        /// <summary>
+        /// Nama sumber aktivitas (ActivitySource) yang digunakan bersama.
+        /// Nama ini dapat dikonfigurasi pada dashboard observability seperti Jaeger atau Zipkin.
+        /// </summary>
+        public const string Name = "AIDispatcher";
 
-    /// <summary>
-    ///     The global ActivitySource instance used for tracing across dispatcher pipeline.
-    /// </summary>
-    public static readonly ActivitySource Instance = new(Name);
+        /// <summary>
+        /// Instance global ActivitySource yang digunakan untuk tracing di seluruh pipeline dispatcher.
+        /// </summary>
+        public static readonly ActivitySource Instance = new(Name);
+    }
 }

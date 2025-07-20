@@ -1,7 +1,0 @@
-﻿| Fitur                         | Penjelasan                                 |
-| ----------------------------- | ------------------------------------------ |
-| `INotification`               | Interface marker untuk event notifikasi    |
-| `INotificationHandler<T>`     | Handler untuk notifikasi tertentu          |
-| `INotificationDispatcher`     | Dispatcher untuk publish ke banyak handler |
-| `NotificationDispatcher`      | Implementasi konkret                       |
-| `AddNotificationDispatcher()` | Registrasi DI                              |

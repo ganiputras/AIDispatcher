@@ -1,6 +1,4 @@
-﻿namespace AIDispatcher.Dispatcher;
-
-/// <summary>
+﻿/// <summary>
 ///     Antarmuka utama untuk dispatcher.
 ///     Mirip seperti <c>MediatR.IMediator</c>, digunakan untuk mengirim permintaan (request)
 ///     ke handler yang sesuai, dengan mendukung eksekusi melalui pipeline behavior (seperti validasi, logging, dll).
@@ -20,4 +18,5 @@ public interface IDispatcher
     Task<TResponse> SendAsync<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken = default);
+
 }

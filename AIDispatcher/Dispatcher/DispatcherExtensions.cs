@@ -1,61 +1,76 @@
 ﻿using AIDispatcher.Behaviors;
+using AIDispatcher.Dispatcher;
 using AIDispatcher.Notification;
 using AIDispatcher.PrePostProcessor;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace AIDispatcher.Dispatcher;
+namespace AIDispatcher;
 
-
+/// <summary>
+/// Registrasi seluruh pipeline AIDispatcher, handler, behavior, dan adapter gaya MediatR.
+/// </summary>
+/// <param name="services">Container DI ASP.NET Core.</param>
+/// <param name="configureBuilder">Opsional, konfigurasi pipeline dengan fluent builder.</param>
+/// <param name="configureOptions">Opsional, konfigurasi eksekusi dispatcher seperti paralel, timeout.</param>
+/// <param name="assemblies">Assembly tempat mencari handler & behavior. Jika kosong, akan scan semua.</param>
+/// <returns>IServiceCollection yang telah diperluas.</returns>
 public static class DispatcherExtensions
 {
-
     public static IServiceCollection AddAIDispatcher(
         this IServiceCollection services,
-        Action<DispatcherOptions> configure,
+        Action<DispatcherBuilder>? configureBuilder = null,
+        Action<DispatcherOptions>? configureOptions = null,
         params Assembly[] assemblies)
     {
-        services.AddAIDispatcher(assemblies);
-        services.Configure(configure);
-        return services;
-    }
-    public static IServiceCollection AddAIDispatcher(this IServiceCollection services, params Assembly[] assemblies)
-    {
-        // Core dispatcher
-        services.AddScoped<IDispatcher, Dispatcher>();
+        if (assemblies == null || assemblies.Length == 0)
+        {
+            assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        }
+
+        // Core
+        services.AddScoped<IDispatcher, Dispatcher.Dispatcher>();
         services.AddScoped<IDispatcherRoot, DispatcherRoot>();
         services.AddScoped<INotificationDispatcher, NotificationDispatcher>();
 
-        // Pipeline Behaviors
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(PrePostProcessorBehavior<,>));
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TracingBehavior<,>));
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(DispatcherMetricsBehavior<,>));
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(RetryBehavior<,>));
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(CircuitBreakerBehavior<,>));
-        services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TimeoutBehavior<,>));
-
-
-        services.AddScoped(typeof(INotificationBehavior<>), typeof(LoggingNotificationBehavior<>));
-        services.AddScoped(typeof(INotificationBehavior<>), typeof(RetryNotificationBehavior<>));
-        services.AddScoped(typeof(INotificationBehavior<>), typeof(MetricsNotificationBehavior<>));
-
-        // Scan assemblies
+        // Scan & register handler types
         foreach (var assembly in assemblies)
         {
             RegisterImplementations(services, assembly, typeof(IDispatcherHandler<,>));
             RegisterImplementations(services, assembly, typeof(IRequestPreProcessor<>));
             RegisterImplementations(services, assembly, typeof(IRequestPostProcessor<,>));
             RegisterImplementations(services, assembly, typeof(INotificationBehavior<>));
-
-            // Custom registration for Notification Handlers with priority support
             RegisterNotificationHandlers(services, assembly);
+            RegisterRequestHandlers(services, assembly);
         }
 
-        services.Configure<DispatcherOptions>(options =>
+        // Apply DispatcherOptions
+        if (configureOptions != null)
         {
-            options.DefaultTimeout = TimeSpan.FromSeconds(30);
-        });
+            services.Configure(configureOptions);
+        }
+
+        // Build pipeline via fluent builder
+        if (configureBuilder != null)
+        {
+            var builder = new DispatcherBuilder(services);
+            configureBuilder(builder);
+        }
+        else
+        {
+            // Default behaviors
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(PrePostProcessorBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TracingBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(DispatcherMetricsBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(RetryBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(CircuitBreakerBehavior<,>));
+            services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(TimeoutBehavior<,>));
+
+            services.AddScoped(typeof(INotificationBehavior<>), typeof(LoggingNotificationBehavior<>));
+            services.AddScoped(typeof(INotificationBehavior<>), typeof(RetryNotificationBehavior<>));
+            services.AddScoped(typeof(INotificationBehavior<>), typeof(MetricsNotificationBehavior<>));
+        }
 
         return services;
     }
@@ -97,6 +112,40 @@ public static class DispatcherExtensions
             if (typeof(INotificationHandlerWithPriority).IsAssignableFrom(type))
             {
                 services.AddScoped(typeof(INotificationHandlerWithPriority), type);
+            }
+        }
+    }
+
+
+    //Mediatr Style Handlers
+    private static void RegisterRequestHandlers(IServiceCollection services, Assembly assembly)
+    {
+        var allTypes = assembly.GetTypes()
+            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .ToList();
+
+        foreach (var type in allTypes)
+        {
+            var interfaces = type.GetInterfaces();
+
+            var handlerInterfaces = interfaces
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>))
+                .ToList();
+
+            foreach (var handlerInterface in handlerInterfaces)
+            {
+                var requestType = handlerInterface.GetGenericArguments()[0];
+                var responseType = handlerInterface.GetGenericArguments()[1];
+
+                var adapterType = typeof(RequestHandlerAdapter<,>).MakeGenericType(requestType, responseType);
+                var dispatcherHandlerType = typeof(IDispatcherHandler<,>).MakeGenericType(requestType, responseType);
+
+                services.AddScoped(handlerInterface, type);
+
+                if (services.All(s => s.ServiceType != dispatcherHandlerType))
+                {
+                    services.AddScoped(dispatcherHandlerType, adapterType);
+                }
             }
         }
     }

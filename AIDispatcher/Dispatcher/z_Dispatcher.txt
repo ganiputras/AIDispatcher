@@ -1,7 +1,0 @@
-﻿| File                                    | Fungsi                                 |
-| --------------------------------------- | -------------------------------------- |
-| `IDispatcher`                           | Antarmuka utama pengirim command/query |
-| `Dispatcher`                            | Implementasi lengkap dengan pipeline   |
-| `IDispatcherBehavior`                   | Middleware pipeline seperti di MediatR |
-| `IRequest`, `IRequestHandler`           | Dasar CQRS request-handler             |
-| `DispatcherServiceCollectionExtensions` | Untuk registrasi DI `AddDispatcher()`  |

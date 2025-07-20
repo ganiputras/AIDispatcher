@@ -1,6 +1,0 @@
-﻿| Fitur                            | Penjelasan                       |
-| -------------------------------- | -------------------------------- |
-| `IRequestPreProcessor<T>`        | Hook sebelum handler dijalankan  |
-| `IRequestPostProcessor<T, R>`    | Hook setelah handler dijalankan  |
-| `PrePostProcessorBehavior<T, R>` | Behavior gabungan untuk keduanya |
-| `AddPrePostProcessorBehavior()`  | Untuk pendaftaran DI             |

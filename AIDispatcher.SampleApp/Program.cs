@@ -1,4 +1,6 @@
-﻿using AIDispatcher.Dispatcher;
+﻿
+
+using AIDispatcher;
 using AIDispatcher.SampleApp.Handlers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,19 +15,21 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole();
 
 // Registrasi 
-//builder.Services.AddAIDispatcher(typeof(CreateUserValidator).Assembly); 
-//builder.Services.AddAIDispatcher(typeof(Program).Assembly);
-//builder.Services.AddAIDispatcher(options =>
-//{
-//    options.ParallelNotificationHandlers = true;
-//    options.NotificationHandlerPriorityEnabled = true;
-//});
+builder.Services.AddAIDispatcher(
+    builder =>
+    {
+        builder.UseValidation();
+        builder.UseRetry(opts => opts.MaxRetries = 3);
+        builder.UseTimeout(TimeSpan.FromSeconds(2));
+    },
+    options =>
+    {
+        options.ParallelNotificationHandlers = true;
+        options.NotificationHandlerPriorityEnabled = true;
+    },
+    typeof(Program).Assembly
+);
 
-builder.Services.AddAIDispatcher(options =>
-{
-    options.ParallelNotificationHandlers = true;
-    options.NotificationHandlerPriorityEnabled = true;
-}, typeof(Program).Assembly);
 
 // OpenTelemetry
 builder.Services.AddOpenTelemetry()
@@ -50,9 +54,14 @@ var app = builder.Build();
 using var scope = app.Services.CreateScope();
 var dispatcher = scope.ServiceProvider.GetRequiredService<IDispatcher>();
 
-var result = await dispatcher.SendAsync<CreateUserCommand, string>(
-    new CreateUserCommand { Name = "Gani", Email = "gani@domain.com" });
+var result1 = await dispatcher.SendAsync<CreateUserCommand, string>(new CreateUserCommand
+{ Name = "Gani", Email = "gani@domain.com" });
 
-Console.WriteLine($"Response: {result}");
+var result3 = await dispatcher.SendAsync<CreateUserMediatrStyleCommand, string>(new CreateUserMediatrStyleCommand
+{ Name = "Gani Style", Email = "gani@domain.com" });
+
+Console.WriteLine($"Response: {result1}");
+Console.WriteLine($"Response: {result3}");
+
 
 await app.RunAsync();

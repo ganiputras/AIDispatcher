@@ -2,7 +2,7 @@
 using FluentValidation;
 
 namespace AIDispatcher.SampleApp.Handlers;
-public class CreateUserMediatrStyleCommand : IRequest<string>
+public class CreateUserMediatrStyleCommand : Contact, IRequest<string>
 {
     public string Name { get; set; } = default!;
     public string Email { get; set; } = default!;

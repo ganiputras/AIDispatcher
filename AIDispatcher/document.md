@@ -54,15 +54,6 @@ builder.Services.AddAIDispatcher(
         options.ParallelNotificationHandlers = true;
         options.NotificationHandlerPriorityEnabled = true;
     },
-    typeof(Program).Assembly,
-    typeof(SomeOtherHandler).Assembly
+    typeof(Program).Assembly
 );
-
-⚠️ 5. Tanpa Parameter Sama Sekali
-
-Akan scan seluruh assembly di AppDomain.CurrentDomain.GetAssemblies():
-
-builder.Services.AddAIDispatcher();
-
-⚠️ Tidak disarankan untuk production jika solution Anda memiliki banyak assembly tidak relevan — bisa memperlambat startup.
 

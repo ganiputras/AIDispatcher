@@ -118,34 +118,36 @@ public static class DispatcherExtensions
 
 
     //Mediatr Style Handlers
-    private static void RegisterRequestHandlers(IServiceCollection services, Assembly assembly)
+    public static void RegisterRequestHandlers(IServiceCollection services, Assembly assembly)
     {
         var allTypes = assembly.GetTypes()
-            .Where(t => !t.IsAbstract && !t.IsInterface)
+            .Where(t => t.IsClass && !t.IsAbstract && !t.IsGenericTypeDefinition)
             .ToList();
 
         foreach (var type in allTypes)
         {
-            var interfaces = type.GetInterfaces();
-
-            var handlerInterfaces = interfaces
+            var handlerInterfaces = type.GetInterfaces()
                 .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>))
                 .ToList();
 
             foreach (var handlerInterface in handlerInterfaces)
             {
-                var requestType = handlerInterface.GetGenericArguments()[0];
-                var responseType = handlerInterface.GetGenericArguments()[1];
+                var genericArgs = handlerInterface.GetGenericArguments();
+                var requestType = genericArgs[0];
+                var responseType = genericArgs[1];
+
+                if (requestType.IsGenericParameter || responseType.IsGenericParameter)
+                    continue; // Hindari open generics
 
                 var adapterType = typeof(RequestHandlerAdapter<,>).MakeGenericType(requestType, responseType);
                 var dispatcherHandlerType = typeof(IDispatcherHandler<,>).MakeGenericType(requestType, responseType);
-
-                services.AddScoped(handlerInterface, type);
 
                 if (services.All(s => s.ServiceType != dispatcherHandlerType))
                 {
                     services.AddScoped(dispatcherHandlerType, adapterType);
                 }
+
+                services.AddScoped(handlerInterface, type);
             }
         }
     }

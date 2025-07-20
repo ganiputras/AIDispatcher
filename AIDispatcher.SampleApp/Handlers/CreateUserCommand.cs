@@ -3,7 +3,7 @@ using FluentValidation;
 
 namespace AIDispatcher.SampleApp.Handlers;
 
-public class CreateUserCommand
+public class CreateUserCommand : Contact
 {
     public string Name { get; set; } = default!;
     public string Email { get; set; } = default!;

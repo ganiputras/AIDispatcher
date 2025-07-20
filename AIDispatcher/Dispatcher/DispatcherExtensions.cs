@@ -77,16 +77,22 @@ public static class DispatcherExtensions
 
     private static void RegisterImplementations(IServiceCollection services, Assembly assembly, Type interfaceType)
     {
-        var types = assembly
+        var implementationTypes = assembly
             .GetTypes()
             .Where(t => !t.IsAbstract && !t.IsInterface)
-            .SelectMany(t => t.GetInterfaces(), (t, i) => new { Type = t, Interface = i })
-            .Where(x => x.Interface.IsGenericType && x.Interface.GetGenericTypeDefinition() == interfaceType)
-            .ToList();
+            .SelectMany(t => t.GetInterfaces()
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType)
+                .Select(i => new { Interface = i, Implementation = t }));
 
-        foreach (var type in types)
+        foreach (var reg in implementationTypes)
         {
-            services.AddScoped(type.Interface, type.Type);
+            // Hindari duplicate registration
+            if (!services.Any(s =>
+                    s.ServiceType == reg.Interface &&
+                    s.ImplementationType == reg.Implementation))
+            {
+                services.AddScoped(reg.Interface, reg.Implementation);
+            }
         }
     }
 

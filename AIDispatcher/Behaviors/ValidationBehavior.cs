@@ -24,6 +24,8 @@ namespace AIDispatcher.Behaviors
         {
             _logger = logger;
             _validators = validators;
+
+            //Console.WriteLine($"[ValidationBehavior] constructed for {typeof(TRequest).Name}");
         }
 
         /// <summary>
@@ -38,6 +40,9 @@ namespace AIDispatcher.Behaviors
         public async Task<TResponse> HandleAsync(TRequest request,
             DispatcherHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
         {
+
+            //Console.WriteLine($"[ValidationBehavior] running for {typeof(TRequest).Name}");
+
             // Jika ada validator yang terdaftar, jalankan validasi
             if (_validators.Any())
             {

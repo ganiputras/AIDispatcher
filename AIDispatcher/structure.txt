@@ -1,0 +1,34 @@
+﻿AIDispatcher/
+│
+├── AIDispatcher.csproj
+│
+├── Dispatcher/
+│   ├── IDispatcher.cs
+│   ├── IDispatcherBehavior.cs
+│   ├── DispatcherHandlerDelegate.cs
+│   ├── Dispatcher.cs
+│   ├── DispatcherExtensions.cs
+│   ├── DispatcherUnhandledException.cs
+│   └── DispatcherValidationException.cs
+│
+├── Behaviors/
+│   ├── ValidationBehavior.cs
+│   ├── RetryBehavior.cs
+│   ├── CircuitBreakerBehavior.cs
+│   ├── TracingBehavior.cs
+│   ├── DispatcherMetricsBehavior.cs
+│
+├── Notification/
+│   ├── INotification.cs
+│   ├── INotificationHandler.cs
+│   ├── INotificationDispatcher.cs
+│   └── NotificationDispatcher.cs
+│
+├── PrePostProcessor/
+│   ├── IRequestPreProcessor.cs
+│   ├── IRequestPostProcessor.cs
+│   └── PrePostProcessorBehavior.cs
+│
+└── Observability/
+    ├── DispatcherMetrics.cs
+    └── DispatcherActivitySource.cs

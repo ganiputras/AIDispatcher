@@ -1,0 +1,13 @@
+﻿| Behavior                 | Fungsi                                         |
+| ------------------------ | ---------------------------------------------- |
+| `ValidationBehavior`     | Validasi otomatis via FluentValidation         |
+| `RetryBehavior`          | Otomatis retry ketika gagal, seperti Polly     |
+| `CircuitBreakerBehavior` | Proteksi terhadap overload/gagal terus menerus |
+
+
+| Fitur                    | MediatR                             | AIDispatcher                |
+| ------------------------ | ----------------------------------- | --------------------------- |
+| `ValidationBehavior`     | Manual konfigurasi FluentValidation | Otomatis scan dan validasi  |
+| `RetryBehavior`          | Perlu Polly eksternal               | Native built-in retry       |
+| `CircuitBreakerBehavior` | Perlu Polly eksternal               | Native circuit breaker      |
+| Logging                  | Opsional                            | Sudah built-in per behavior |

@@ -1,5 +1,5 @@
 ﻿namespace AIDispatcher.Dispatcher;
 
-public class ServiceCollectionExtensions
+public interface IRequest<TResponse>
 {
 }

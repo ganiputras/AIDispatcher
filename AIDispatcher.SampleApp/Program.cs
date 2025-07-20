@@ -16,9 +16,8 @@ var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole();
 
 
-builder.Services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
 builder.Services.AddValidatorsFromAssembly(typeof(CreateUserCommand).Assembly);
-
+builder.Services.AddScoped(typeof(IDispatcherBehavior<,>), typeof(ValidationBehavior<,>));
 // Registrasi 
 builder.Services.AddAIDispatcher(assemblies: typeof(Program).Assembly);
 

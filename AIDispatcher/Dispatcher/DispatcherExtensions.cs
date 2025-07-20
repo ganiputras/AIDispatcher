@@ -4,6 +4,7 @@ using AIDispatcher.Notification;
 using AIDispatcher.PrePostProcessor;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using System.Reflection;
 
 namespace AIDispatcher;
@@ -84,26 +85,18 @@ public static class DispatcherExtensions
 
         return services;
     }
-
-    private static void RegisterImplementations(IServiceCollection services, Assembly assembly, Type interfaceType)
+    public static void RegisterImplementations(this IServiceCollection services, Assembly assembly, Type openGenericType)
     {
         var implementationTypes = assembly
             .GetTypes()
             .Where(t => !t.IsAbstract && !t.IsInterface)
             .SelectMany(t => t.GetInterfaces()
-                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == interfaceType)
+                .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == openGenericType)
                 .Select(i => new { Interface = i, Implementation = t }));
 
         foreach (var reg in implementationTypes)
         {
-            // Hindari duplicate registration
-            if (!services.Any(s =>
-                    s.ServiceType.IsGenericType &&
-                    s.ServiceType.GetGenericTypeDefinition() == reg.Interface.GetGenericTypeDefinition() &&
-                    s.ImplementationType == reg.Implementation))
-            {
-                services.AddScoped(reg.Interface, reg.Implementation);
-            }
+            services.TryAddEnumerable(ServiceDescriptor.Scoped(reg.Interface, reg.Implementation));
         }
     }
 

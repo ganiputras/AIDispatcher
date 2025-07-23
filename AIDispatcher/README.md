@@ -9,7 +9,7 @@
 </p>
 <p align="center">
   <a href="https://www.nuget.org/packages/AIDispatcher"><img src="https://img.shields.io/nuget/v/AIDispatcher.svg?style=flat-square" alt="NuGet"></a>
-  <a href="https://github.com/ganiputras/AIDispatcher/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+  <a href="https://github.com/ganiputras/AIDispatcher/blob/master/AIDispatcher/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
 </p>
 
 ## 🚀 AIDispatcher: CQRS & Notification Pipeline for .NET 8+

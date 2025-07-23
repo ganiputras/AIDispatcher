@@ -6,9 +6,9 @@
 		<PackageId>AIDispatcher</PackageId>
 		<Version>1.0.0</Version>
 		<Authors>Gani Putras</Authors>
-		<Company>PutrasDev</Company>
-		<Description>Modern, modular CQRS and pipeline dispatcher for .NET 8 or newer. Inspired by MediatR, designed for simplicity, extensibility, and production-ready performance!</Description>
-		<PackageTags>dispatcher;mediatR;CQRS;pipeline;dotnet;extensible</PackageTags>
+		<Company>Ganiputras</Company>
+		<Description>Simple dispatcher implementation in .NET</Description>
+		<PackageTags>mediator, request, response, queries, commands, notificaion</PackageTags>
 		<RepositoryUrl>https://github.com/ganiputras/AIDispatcher</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<PackageProjectUrl>https://github.com/ganiputras/AIDispatcher</PackageProjectUrl>
@@ -23,6 +23,7 @@
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	</PropertyGroup>
+	<!--<None Include="logo.png" Pack="true" PackagePath="" />-->
 	<ItemGroup>
 		<None Include="logo.png" Pack="true" PackagePath="" />
 		<None Include="README.md" Pack="true" PackagePath="" />

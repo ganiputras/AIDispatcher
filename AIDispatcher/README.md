@@ -74,24 +74,25 @@ var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { I
 
 - Notification Priority: Eksekusi handler sesuai prioritas
 
-##  🆚 Perbandingan dengan MediatR
+##  🆚 Fitur
 
-| Fitur                        | MediatR  | AIDispatcher |
-| ---------------------------- | -------- | ------------ |
-| Request/Response             | ✔️       | ✔️           |
-| Notification/Publish         | ✔️       | ✔️           |
-| Pipeline Modular             | ✔️       | ✔️           |
-| Logging/Performance Pipeline | Opsional | ✔️           |
-| Retry/Circuit Breaker/Polly  | Opsional | ✔️           |
-| Exception Handling Pipeline  | ✔️       | ✔️           |
-| Notification Priority        | ❌        | ✔️           |
-| Notification Parallel/Seq    | ❌        | ✔️           |
-| XML Doc Bahasa Indonesia     | ❌        | ✔️           |
-| Extensible Pipeline          | ✔️       | ✔️           |
-| DI Friendly                  | ✔️       | ✔️           |
-| Blazor Friendly              | ✔️       | ✔️           |
+| Fitur                        | AIDispatcher |
+| ---------------------------- | ------------ |
+| Request/Response             | ✔️           |
+| Notification/Publish         | ✔️           |
+| Pipeline Modular             | ✔️           |
+| Logging/Performance Pipeline | ✔️           |
+| Retry/Circuit Breaker/Polly  | ✔️           |
+| Exception Handling Pipeline  | ✔️           |
+| Notification Priority        | ✔️           |
+| Notification Parallel/Seq    | ✔️           |
+| XML Doc Bahasa Indonesia     | ✔️           |
+| Extensible Pipeline          | ✔️           |
+| DI Friendly                  | ✔️           |
+| Blazor Friendly              | ✔️           |
 
-AIDispatcher menghadirkan keunggulan MediatR dengan penambahan fitur advanced seperti parallel notification, priority, built-in retry/circuit breaker, dan pipeline monitoring, siap produksi di aplikasi Anda.
+
+AIDispatcher menghadirkan keunggulan dengan penambahan fitur advanced seperti parallel notification, priority, built-in retry/circuit breaker, dan pipeline monitoring, siap produksi di aplikasi Anda.
 
 
 ##  💡 Migrasi dari MediatR

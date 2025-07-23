@@ -5,7 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace AIDispatcher.Core;
 
 /// <summary>
-///     Dispatcher utama yang mengarahkan permintaan dan notifikasi ke handler yang sesuai.
+/// Dispatcher utama yang bertanggung jawab mengarahkan permintaan (request/command/query) dan notifikasi ke handler yang sesuai,
+/// serta menjalankan seluruh pipeline behavior dan notification pipeline secara terurut sesuai konfigurasi.
 /// </summary>
 public class Dispatcher : IDispatcher
 {
@@ -13,10 +14,10 @@ public class Dispatcher : IDispatcher
     private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
-    ///     Membuat instance baru dari Dispatcher dengan dependency injection.
+    /// Membuat instance baru dari <see cref="Dispatcher"/> dengan dependency injection.
     /// </summary>
-    /// <param name="serviceProvider">Penyedia layanan untuk resolve handler.</param>
-    /// <param name="options">Opsi konfigurasi dispatcher (optional).</param>
+    /// <param name="serviceProvider">Penyedia layanan untuk resolve handler dan pipeline behavior.</param>
+    /// <param name="options">Opsi konfigurasi dispatcher. Jika null, akan digunakan nilai default.</param>
     public Dispatcher(IServiceProvider serviceProvider, DispatcherOptions? options = null)
     {
         _serviceProvider = serviceProvider;
@@ -24,14 +25,16 @@ public class Dispatcher : IDispatcher
     }
 
     /// <summary>
-    ///     Mengirim permintaan dengan hasil ke handler yang sesuai.
+    /// Mengirim permintaan (request/command/query) dengan response ke handler yang sesuai,
+    /// beserta seluruh pipeline behavior yang telah diregistrasi.
     /// </summary>
     /// <typeparam name="TRequest">Tipe permintaan.</typeparam>
-    /// <typeparam name="TResponse">Tipe hasil yang diharapkan.</typeparam>
-    /// <param name="request">Objek permintaan.</param>
-    /// <param name="cancellationToken">Token pembatalan.</param>
-    /// <returns>Hasil dari handler.</returns>
-    public async Task<TResponse> Send<TRequest, TResponse>(TRequest request,
+    /// <typeparam name="TResponse">Tipe hasil yang diharapkan dari handler.</typeparam>
+    /// <param name="request">Objek permintaan yang akan diproses.</param>
+    /// <param name="cancellationToken">Token untuk membatalkan operasi asynchronous.</param>
+    /// <returns>Hasil dari handler utama setelah seluruh pipeline dijalankan.</returns>
+    public async Task<TResponse> Send<TRequest, TResponse>(
+        TRequest request,
         CancellationToken cancellationToken = default)
         where TRequest : IRequest<TResponse>
     {
@@ -52,11 +55,13 @@ public class Dispatcher : IDispatcher
     }
 
     /// <summary>
-    ///     Mengirim permintaan tanpa hasil ke handler yang sesuai.
+    /// Mengirim permintaan tanpa hasil (void command) ke handler yang sesuai,
+    /// beserta seluruh pipeline behavior yang telah diregistrasi.
     /// </summary>
     /// <typeparam name="TRequest">Tipe permintaan.</typeparam>
-    /// <param name="request">Objek permintaan.</param>
-    /// <param name="cancellationToken">Token pembatalan.</param>
+    /// <param name="request">Objek permintaan yang akan diproses.</param>
+    /// <param name="cancellationToken">Token untuk membatalkan operasi asynchronous.</param>
+    /// <returns>Task asynchronous yang merepresentasikan proses pengiriman permintaan.</returns>
     public async Task Send<TRequest>(TRequest request, CancellationToken cancellationToken = default)
         where TRequest : IRequest
     {
@@ -77,11 +82,14 @@ public class Dispatcher : IDispatcher
     }
 
     /// <summary>
-    ///     Mempublikasikan notifikasi ke semua handler terkait.
+    /// Mempublikasikan notifikasi ke semua handler yang terdaftar,
+    /// beserta seluruh notification pipeline behavior, dengan strategi eksekusi sesuai konfigurasi (sequential atau parallel).
+    /// Handler dengan prioritas lebih rendah akan dieksekusi lebih awal.
     /// </summary>
     /// <typeparam name="TNotification">Tipe notifikasi.</typeparam>
-    /// <param name="notification">Objek notifikasi.</param>
-    /// <param name="cancellationToken">Token pembatalan.</param>
+    /// <param name="notification">Objek notifikasi yang akan diproses.</param>
+    /// <param name="cancellationToken">Token untuk membatalkan operasi asynchronous.</param>
+    /// <returns>Task asynchronous yang merepresentasikan proses publish notifikasi ke seluruh handler.</returns>
     public async Task Publish<TNotification>(TNotification notification, CancellationToken cancellationToken = default)
         where TNotification : INotification
     {

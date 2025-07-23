@@ -1,20 +1,28 @@
-﻿using System.Diagnostics;
-using AIDispatcher.Core.Commons;
+﻿using AIDispatcher.Core.Commons;
 using AIDispatcher.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
 
 namespace AIDispatcher.Core.Behaviors;
 
 /// <summary>
-///     Pipeline behavior untuk mencatat durasi eksekusi handler request (performance monitoring).
+/// Pipeline behavior untuk memonitor dan mencatat durasi eksekusi handler request.
+/// Jika waktu eksekusi melebihi ambang batas yang ditentukan, akan mencatat warning ke log.
 /// </summary>
+/// <typeparam name="TRequest">Tipe request yang diproses.</typeparam>
+/// <typeparam name="TResponse">Tipe response yang dihasilkan.</typeparam>
 public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
     private readonly ILogger<PerformanceBehavior<TRequest, TResponse>> _logger;
     private readonly int _thresholdMs;
 
+    /// <summary>
+    /// Membuat instance baru dari <see cref="PerformanceBehavior{TRequest, TResponse}"/>.
+    /// </summary>
+    /// <param name="logger">Logger untuk mencatat informasi dan warning performa.</param>
+    /// <param name="options">Opsi konfigurasi dispatcher untuk ambang batas performa (threshold).</param>
     public PerformanceBehavior(
         ILogger<PerformanceBehavior<TRequest, TResponse>> logger,
         IOptions<DispatcherOptions> options)
@@ -23,7 +31,16 @@ public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         _thresholdMs = options.Value.PerformanceThresholdMs;
     }
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+    /// <summary>
+    /// Menangani pipeline dengan memonitor durasi eksekusi handler dan mencatat log informasi serta warning jika melebihi threshold.
+    /// </summary>
+    /// <param name="request">Request yang akan diproses.</param>
+    /// <param name="next">Delegate handler berikutnya dalam pipeline.</param>
+    /// <param name="cancellationToken">Token untuk pembatalan operasi async.</param>
+    /// <returns>Response hasil pemrosesan handler.</returns>
+    public async Task<TResponse> Handle(
+        TRequest request,
+        RequestHandlerDelegate<TResponse> next,
         CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
@@ -48,8 +65,8 @@ public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
 }
 
 /// <summary>
-///     Pipeline behavior untuk memonitor dan mencatat durasi eksekusi handler permintaan tanpa hasil (command void).
-///     Memberikan warning di log jika eksekusi melebihi ambang batas yang ditentukan.
+/// Pipeline behavior untuk memonitor dan mencatat durasi eksekusi handler permintaan tanpa hasil (void/command).
+/// Mencatat warning di log jika durasi eksekusi melebihi ambang batas yang ditentukan.
 /// </summary>
 /// <typeparam name="TRequest">Tipe permintaan (tanpa response).</typeparam>
 public class PerformanceBehavior<TRequest> : IPipelineBehavior<TRequest>
@@ -59,10 +76,10 @@ public class PerformanceBehavior<TRequest> : IPipelineBehavior<TRequest>
     private readonly int _thresholdMs;
 
     /// <summary>
-    ///     Inisialisasi <see cref="PerformanceBehavior{TRequest}" />.
+    /// Membuat instance baru dari <see cref="PerformanceBehavior{TRequest}"/>.
     /// </summary>
-    /// <param name="logger">Logger untuk mencatat informasi dan warning.</param>
-    /// <param name="options">Opsi dispatcher, ambil nilai threshold.</param>
+    /// <param name="logger">Logger untuk mencatat informasi dan warning performa.</param>
+    /// <param name="options">Opsi konfigurasi dispatcher untuk ambang batas performa (threshold).</param>
     public PerformanceBehavior(
         ILogger<PerformanceBehavior<TRequest>> logger,
         IOptions<DispatcherOptions> options)
@@ -71,8 +88,17 @@ public class PerformanceBehavior<TRequest> : IPipelineBehavior<TRequest>
         _thresholdMs = options.Value.PerformanceThresholdMs;
     }
 
-    /// <inheritdoc />
-    public async Task Handle(TRequest request, RequestHandlerDelegate next, CancellationToken cancellationToken)
+    /// <summary>
+    /// Menangani pipeline dengan memonitor durasi eksekusi handler dan mencatat log informasi serta warning jika melebihi threshold.
+    /// </summary>
+    /// <param name="request">Request yang akan diproses.</param>
+    /// <param name="next">Delegate handler berikutnya dalam pipeline.</param>
+    /// <param name="cancellationToken">Token untuk pembatalan operasi async.</param>
+    /// <returns>Task asynchronous yang merepresentasikan proses handler.</returns>
+    public async Task Handle(
+        TRequest request,
+        RequestHandlerDelegate next,
+        CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
         var stopwatch = Stopwatch.StartNew();

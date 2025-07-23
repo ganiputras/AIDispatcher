@@ -1,4 +1,5 @@
 ﻿using AIDispatcher.Core;
+using AIDispatcher.Core.Commons;
 using AIDispatcher.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,14 +12,82 @@ class Program
     {
         var builder = Host.CreateApplicationBuilder();
 
-        // Registrasi pipeline (core & advanced), tinggal comment/uncomment
-        builder.Services.AddAIDispatcherCore();
-        builder.Services.AddAIDispatcherAdvanced();
+        // ========== Registrasi fitur utama AIDispatcher ==========
+
+        // Pipeline core (logging, exception, basic pipeline, dsb)
+        builder.Services.AddAIDispatcherCore();        // [WAJIB] Pipeline dasar (logging, exception, dll)
+                                                       // Pipeline advanced (retry, timeout, circuit breaker, performance, dsb)
+        builder.Services.AddAIDispatcherAdvanced();    // [OPSIONAL] Fitur lanjutan, aktifkan jika ingin retry/timeout/circuit breaker otomatis
+
+        //// ========== Konfigurasi global opsi Dispatcher ==========
+        //builder.Services.Configure<DispatcherOptions>(opt =>
+        //{
+        //    opt.PublishStrategy = PublishStrategy.Parallel;  // Parallel: semua handler notifikasi dijalankan bersamaan (default: Sequential)
+        //    opt.PerformanceThresholdMs = 1000;              // Threshold waktu eksekusi (ms) sebelum keluar warning performance
+        //});
+
+        //// ========== Pipeline Behavior untuk Request/Command/Query ==========
+
+        //// Logging pipeline - mencatat waktu mulai, selesai, dan durasi setiap request/command/query
+        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+
+        //// Retry pipeline - otomatis retry jika handler gagal/throw exception (Polly)
+        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RetryBehavior<,>));
+
+        //// Timeout pipeline - batasi waktu maksimal eksekusi handler (timeout throw exception)
+        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TimeoutBehavior<,>));
+
+        //// Performance pipeline - warning/log jika eksekusi handler lebih lama dari threshold
+        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
+
+        //// Exception pipeline - tangkap dan handle global error pada handler
+        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
+
+        //// Pre/Post processor pipeline - agar pipeline mendukung pre/post processor ala MediatR
+        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PrePostProcessorBehavior<,>));
+
+        //// ========== Pipeline Behavior untuk Notifikasi ==========
+
+        //// Logging untuk pipeline notifikasi (catat waktu eksekusi handler notifikasi)
+        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(LoggingNotificationBehavior<>));
+
+        //// Timeout pipeline untuk notifikasi (handler otomatis dibatalkan jika melebihi waktu)
+        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationTimeoutBehavior<>));
+
+        //// Retry pipeline untuk notifikasi (handler akan dicoba ulang jika error)
+        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(RetryNotificationBehavior<>));
+
+        //// Circuit breaker pipeline untuk notifikasi (jika error berturut-turut, eksekusi handler diputus sementara)
+        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(CircuitBreakerNotificationBehavior<>));
+
+        //// Performance pipeline untuk notifikasi (warning jika handler lambat)
+        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationPerformanceBehavior<>));
+
+        //// Exception pipeline untuk notifikasi (tangkap & handle error pada handler notifikasi)
+        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationExceptionBehavior<>));
+
+        //// ========== Registrasi Pre/Post Processor (opsional, jika ingin hook custom) ==========
+
+        //// Pre-processor: kode yang dijalankan SEBELUM handler utama
+        //builder.Services.AddScoped(typeof(IRequestPreProcessor<>), typeof(MyLoggingPreProcessor<>)); // Contoh: logging awal request
+
+        //// Post-processor: kode yang dijalankan SETELAH handler utama selesai
+        //builder.Services.AddScoped(typeof(IRequestPostProcessor<,>), typeof(MyLoggingPostProcessor<,>)); // Contoh: audit hasil response
+
+        //// ========== Registrasi Handler (command/query/notification) ==========
+
+        //// Handler untuk command/query/notification tetap perlu didaftarkan
+        //builder.Services.AddScoped<IRequestHandler<MyCommand>, MyCommandHandler>();
+        //builder.Services.AddScoped<IRequestHandler<MyQuery, MyResult>, MyQueryHandler>();
+        //builder.Services.AddScoped<INotificationHandler<MyNotification>, MyNotificationHandler>();
+
+        // ========== End Registrasi ==========
+
 
         var app = builder.Build();
         var dispatcher = app.Services.GetRequiredService<IDispatcher>();
 
-        // ==== UNCOMMENT TEST YANG DIINGINKAN ====
+        // ==== UJI COBA SEMUA FITUR DISPATCHER ====
         await TestExceptionBehavior(dispatcher);
         await TestLoggingBehavior(dispatcher);
         await TestTimeoutBehavior(dispatcher);
@@ -32,6 +101,10 @@ class Program
         await TestNotificationRetryBehavior(dispatcher);
         await TestNotificationCircuitBreakerBehavior(dispatcher);
         await TestNotificationLoggingBehavior(dispatcher);
+
+        // ==== CONTOH ATTRIBUTE PRIORITY & TIMEOUT ====
+        await TestNotificationPriority(dispatcher);
+        await TestWithTimeoutAttribute(dispatcher);
     }
 
     // ===================== REQUEST/COMMAND TESTS =====================
@@ -324,6 +397,65 @@ class Program
         {
             Console.WriteLine($"[LoggingNotificationHandler] {notification.Message}");
             return Task.CompletedTask;
+        }
+    }
+
+
+
+
+
+    // ===================== ATTRIBUTE TESTS =====================
+    static async Task TestNotificationPriority(IDispatcher dispatcher)
+    {
+        Console.WriteLine("\n=== TEST: WithPriorityAttribute pada Notification ===");
+        await dispatcher.Publish(new DemoPriorityNotification());
+        Console.WriteLine("[INFO] Handler dijalankan urut prioritas (cek urutan output di bawah).\n");
+    }
+    public class DemoPriorityNotification : INotification { }
+
+    [WithPriority(-10)]
+    public class FirstHandler : INotificationHandler<DemoPriorityNotification>
+    {
+        public Task Handle(DemoPriorityNotification notification, CancellationToken ct)
+        {
+            Console.WriteLine("[FirstHandler] PRIORITY -10 (harus lebih awal)");
+            return Task.CompletedTask;
+        }
+    }
+
+    [WithPriority(20)]
+    public class SecondHandler : INotificationHandler<DemoPriorityNotification>
+    {
+        public Task Handle(DemoPriorityNotification notification, CancellationToken ct)
+        {
+            Console.WriteLine("[SecondHandler] PRIORITY 20 (harus lebih akhir)");
+            return Task.CompletedTask;
+        }
+    }
+
+    static async Task TestWithTimeoutAttribute(IDispatcher dispatcher)
+    {
+        Console.WriteLine("\n=== TEST: WithTimeoutAttribute pada Notification ===");
+        try
+        {
+            await dispatcher.Publish(new AttributeTimeoutNotification());
+            Console.WriteLine("[FAILED] Tidak terjadi timeout! (Handler terlalu cepat atau pipeline belum aktif)");
+        }
+        catch (TimeoutException ex)
+        {
+            Console.WriteLine($"[PASSED] TimeoutException tertangkap (karena attribute): {ex.Message}\n");
+        }
+    }
+
+    [WithTimeout(500)] // Timeout 500 ms (lebih pendek dari delay handler)
+    public class AttributeTimeoutNotification : INotification { }
+
+    public class AttributeTimeoutNotificationHandler : INotificationHandler<AttributeTimeoutNotification>
+    {
+        public async Task Handle(AttributeTimeoutNotification notification, CancellationToken ct)
+        {
+            Console.WriteLine("[AttributeTimeoutNotificationHandler] Simulasi delay 1000ms (harus timeout)");
+            await Task.Delay(1000, ct);
         }
     }
 }

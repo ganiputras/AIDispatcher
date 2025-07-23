@@ -1,175 +1,106 @@
-# AIDispatcher
+<p align="center">
+  <a href="https://github.com/ganiputras/AIDispatcher">
+    <img src="https://raw.githubusercontent.com/ganiputras/AIDispatcher/master/logo.png" alt="AIDispatcher Logo" width="96"/>
+  </a>
+</p>
+<h1 align="center">AIDispatcher</h1>
+<p align="center">
+  Modern, modular, and extensible CQRS Dispatcher for .NET 8+
+</p>
+<p align="center">
+  <a href="https://www.nuget.org/packages/AIDispatcher"><img src="https://img.shields.io/nuget/v/AIDispatcher.svg?style=flat-square" alt="NuGet"></a>
+  <a href="https://github.com/ganiputras/AIDispatcher/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+</p>
 
-[![NuGet](https://img.shields.io/nuget/v/AIDispatcher?color=green&logo=nuget)](https://www.nuget.org/packages/AIDispatcher)
-[![Build Status](https://github.com/ganiputras/AIDispatcher/workflows/Build/badge.svg)](https://github.com/ganiputras/AIDispatcher/actions)
-![.NET 8+](https://img.shields.io/badge/.NET-8.0%2B-blueviolet)
-![MIT License](https://img.shields.io/badge/License-MIT-lightgray.svg)
+## 🚀 AIDispatcher: CQRS & Notification Pipeline for .NET 8+
 
-> **AIDispatcher** adalah framework **CQRS & pipeline** open source untuk .NET 8+  
-> Lebih simpel, fleksibel, dan powerful.  
-> Plug & play — Registrasi cukup 1 baris, pipeline modular, handler auto-discover, siap untuk microservice, Blazor, Console, WebAPI.
-> 
-> Framework dispatcher open source berbasis .NET 8+ yang mengusung arsitektur CQRS dan pipeline modular.
-> Terinspirasi dari MediatR — menawarkan pengalaman yang lebih simpel, terotomatisasi, serta pipeline yang mudah dikembangkan.
-> Semua handler & pipeline didaftarkan otomatis, logging & monitoring siap produksi, serta support fitur advanced seperti timeout, retry, dan circuit breaker (Polly ready).
-> Cukup satu baris untuk mulai — langsung siap digunakan di microservice, Blazor, Console, WebAPI, maupun aplikasi enterprise.
+AIDispatcher adalah library .NET open-source untuk CQRS, Pipeline Behavior, dan Notification Dispatcher modern — terinspirasi MediatR, namun lebih modular, lebih fleksibel, dan lebih mudah dikembangkan.
 
-## Requirements
-- .NET 8.0 or newer
-- 
-## 🚀 Fitur Utama
+## ✨ Fitur Utama
 
-- **Plug & Play**: Satu baris registrasi, langsung jalan
-- **Pipeline Modular**: Exception, Logging, Timeout, Performance, Retry, Circuit Breaker, dsb
-- **Auto-Discovery**: Handler & pipeline otomatis terdaftar
-- **Priority & Parallel Notification**
-- **Timeout & Cancellation per-request/per-notification**
-- **ILogger Integration**: Log siap production
-- **Polly Ready**: Retry & circuit breaker support
-- **Mudah di-extend** (pipeline & handler custom)
-- **Siap untuk microservice, Blazor, Console, WebAPI, dll**
-
+- Pipeline Behavior Modular: Logging, Retry, Timeout, Circuit Breaker, Exception Handling, Performance Monitoring, Pre/Post Processor
+- Notification Dispatcher: Parallel & Sequential, Prioritas Handler (`WithPriority`), pipeline untuk logging, timeout, retry, dsb
+- Request Dispatcher (CQRS): Handler dengan Response & Void, pipeline modular
+- Extensible & Plug & Play: Mudah menambah pipeline/behavior via DI
+- Dokumentasi XML lengkap (Bahasa Indonesia): semua public API terdokumentasi untuk IntelliSense
 
 ## 📦 Instalasi
 
-1. **Tambahkan NuGet Package**
-    ```bash
-    dotnet add package AIDispatcher
-    dotnet add package Polly
-    ```
+Install via NuGet:
 
-2. **Registrasi di DI (Dependency Injection)**
-    ```csharp
-    // Pipeline utama (wajib)
-    builder.Services.AddAIDispatcherCore();
+```sh
+dotnet add package AIDispatcher
+```
 
-    // Pipeline advanced/optional (performance, retry, circuit breaker, dsb)
-    builder.Services.AddAIDispatcherAdvanced();
-    ```
-
-
-
-## ⚡️ Quick Start
-
-**Command & Handler**
-```csharp
-public record PingCommand(string Message) : IRequest<string>;
-public class PingCommandHandler : IRequestHandler<PingCommand, string>
+ ## 🛠️ Contoh Penggunaan
+Request Handler (CQRS)
+```sh
+public class GetOrderQuery : IRequest<OrderDto>
 {
-    public Task<string> Handle(PingCommand request, CancellationToken ct)
-        => Task.FromResult($"Reply: {request.Message}");
+    public int Id { get; set; }
 }
- ```
 
-**Notification & Handler**
-```csharp
-public class NotifyMe : INotification
+public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto>
 {
-    public string Message { get; }
-    public NotifyMe(string message) => Message = message;
-}
-public class NotifyMeHandler : INotificationHandler<NotifyMe>
-{
-    public Task Handle(NotifyMe notification, CancellationToken ct)
+    public Task<OrderDto> Handle(GetOrderQuery request, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"[NotifyMeHandler] {notification.Message}");
-        return Task.CompletedTask;
+        // Query ke database atau source data lain
+        return Task.FromResult(new OrderDto { ... });
     }
 }
- ```
 
-**Memanggil di Program.cs**
-```csharp
-var dispatcher = app.Services.GetRequiredService<IDispatcher>();
-var result = await dispatcher.Send<PingCommand, string>(new PingCommand("Hello!"));
-await dispatcher.Publish(new NotifyMe("Halo dari AIDispatcher!"));
- ```
-
-
-## 🏗 Pipeline Bawaan
-
-| Pipeline                          | Command | Notification                            | Fungsionalitas            |
-| --------------------------------- | ------- | --------------------------------------- | ------------------------- |
-| ExceptionBehavior                 | ✔️      | ✔️ (NotificationExceptionBehavior)      | Penanganan global error   |
-| LoggingBehavior                   | ✔️      | ✔️ (LoggingNotificationBehavior)        | Logging start/end         |
-| TimeoutBehavior                   | ✔️      | ✔️ (NotificationTimeoutBehavior)        | Timeout per-request       |
-| PerformanceBehavior (optional)    | ✔️      | ✔️ (NotificationPerformanceBehavior)    | Warning slow handler      |
-| RetryBehavior (optional)          | ✔️      | ✔️ (RetryNotificationBehavior)          | Otomatis retry saat error |
-| CircuitBreakerBehavior (optional) | ✔️      | ✔️ (CircuitBreakerNotificationBehavior) | Proteksi overload         |
-
-
-## 🚦 Urutan Registrasi Pipeline
-Pipeline dijalankan sesuai urutan pendaftaran di DI.
-Pipeline yang ingin jadi paling luar (misal Exception/Logging) daftarkan TERAKHIR.
-```csharp
-services.TryAddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationTimeoutBehavior<>));
-services.TryAddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationExceptionBehavior<>)); // outermost
- ```
+// Kirim request
+var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { Id = 1 });    
+```
 
 
 
-## 🧪 Contoh Test Pipeline
-```csharp
-var builder = Host.CreateApplicationBuilder();
-builder.Services.AddAIDispatcherCore();
-builder.Services.AddAIDispatcherAdvanced();
 
-var app = builder.Build();
-var dispatcher = app.Services.GetRequiredService<IDispatcher>();
+## ⚡ Pipeline Built-in
 
-// Uncomment untuk menjalankan test
-await TestExceptionBehavior(dispatcher);
-await TestLoggingBehavior(dispatcher);
-await TestTimeoutBehavior(dispatcher);
-await TestPerformanceBehavior(dispatcher);
-await TestRetryBehavior(dispatcher);
-await TestCircuitBreakerBehavior(dispatcher);
+- Logging: Catat request, notifikasi, dan durasi eksekusi
 
-await TestNotificationTimeoutBehavior(dispatcher);
-await TestNotificationExceptionBehavior(dispatcher);
-await TestNotificationPerformanceBehavior(dispatcher);
-await TestNotificationRetryBehavior(dispatcher);
-await TestNotificationCircuitBreakerBehavior(dispatcher);
-await TestNotificationLoggingBehavior(dispatcher);
- ```
-```csharp
-=== TEST: Timeout pada Notification ===
+- Retry: Otomatis ulangi jika gagal (Polly)
 
-[SKENARIO 1] Notifikasi timeout 3 detik, handler delay 2 detik (harus selesai).
-[Task Handle] Notifikasi timeout 3 detik (simulasi delay 2 detik)
-[BERHASIL] Notifikasi selesai sebelum timeout.
+- Timeout: Batasi waktu maksimal eksekusi
 
-[SKENARIO 2] Notifikasi timeout default 1.5 detik, handler delay 2 detik (harus timeout).
-warn: AIDispatcher.Core.Behaviors.NotificationTimeoutBehavior[0]
-      Notification handler Test_NotificationTimeout timed out after 1500 ms.
-[BERHASIL] Notifikasi gagal tepat waktu (timeout): Notification Test_NotificationTimeout exceeded the timeout of 1500 ms.
+- Circuit Breaker: Putus eksekusi jika error berturut-turut
 
- ```
+- Performance: Warning jika eksekusi lambat
 
-## 💡 Kustomisasi & Ekstensi
+- Pre/Post Processor: Hook sebelum/sesudah handler berjalan
 
-- Buat pipeline baru: implement IPipelineBehavior<,>, INotificationPipelineBehavior<>, dst.
-- Pipeline otomatis terdaftar sesuai urutan di DI.
-- Bisa override pipeline, tambah logging, validasi, rate limiting, dsb.
+- Exception Handling: Tangani error secara global
+
+- Notification Priority: Eksekusi handler sesuai prioritas
+
+##  🆚 Perbandingan dengan MediatR
+
+| Fitur                        | MediatR  | AIDispatcher |
+| ---------------------------- | -------- | ------------ |
+| Request/Response             | ✔️       | ✔️           |
+| Notification/Publish         | ✔️       | ✔️           |
+| Pipeline Modular             | ✔️       | ✔️           |
+| Logging/Performance Pipeline | Opsional | ✔️           |
+| Retry/Circuit Breaker/Polly  | Opsional | ✔️           |
+| Exception Handling Pipeline  | ✔️       | ✔️           |
+| Notification Priority        | ❌        | ✔️           |
+| Notification Parallel/Seq    | ❌        | ✔️           |
+| XML Doc Bahasa Indonesia     | ❌        | ✔️           |
+| Extensible Pipeline          | ✔️       | ✔️           |
+| DI Friendly                  | ✔️       | ✔️           |
+| Blazor Friendly              | ✔️       | ✔️           |
+
+AIDispatcher menghadirkan keunggulan MediatR dengan penambahan fitur advanced seperti parallel notification, priority, built-in retry/circuit breaker, dan pipeline monitoring, siap produksi di aplikasi Anda.
 
 
-## 📝 FAQ
-- Q: Apakah AIDispatcher bisa drop-in replace MediatR?
-- A: Ya, tinggal ganti dependency DI dan interface-nya (lihat sample).
+##  💡 Migrasi dari MediatR
+- Interface mirip (IRequest, INotification, IRequestHandler, INotificationHandler)
 
-- Q: Apakah support paralel handler untuk notification?
-- A: Bisa, cek opsi DispatcherOptions.PublishStrategy.
+- Pipeline behavior mirip MediatR, lebih mudah di-extend
 
-- Q: Cara pakai timeout per-request/per-notification?
-- A: Implement interface ITimeoutAware pada request/notification.
+- Tidak perlu konfigurasi rumit, tinggal ganti DI dan handler
 
-- Q: Support .NET 8 / Blazor?
-- A: 100% support.
-
-
-## ✨ Kontribusi
-- Dukung project ini via GitHub Sponsor
-- Follow @ganiputras di GitHub
-
-## Lisensi
-MIT License
+##    📚 Lisensi
+MIT © 2025 Gani Putras
+Kontribusi & feedback sangat diterima!

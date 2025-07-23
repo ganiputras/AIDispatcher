@@ -1,18 +1,106 @@
-# AIDispatcher
+<p align="center">
+  <a href="https://github.com/ganiputras/AIDispatcher">
+    <img src="https://raw.githubusercontent.com/ganiputras/AIDispatcher/master/logo.png" alt="AIDispatcher Logo" width="96"/>
+  </a>
+</p>
+<h1 align="center">AIDispatcher</h1>
+<p align="center">
+  Modern, modular, and extensible CQRS Dispatcher for .NET 8+
+</p>
+<p align="center">
+  <a href="https://www.nuget.org/packages/AIDispatcher"><img src="https://img.shields.io/nuget/v/AIDispatcher.svg?style=flat-square" alt="NuGet"></a>
+  <a href="https://github.com/ganiputras/AIDispatcher/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
+</p>
 
-[![NuGet](https://img.shields.io/nuget/v/AIDispatcher?color=green&logo=nuget)](https://www.nuget.org/packages/AIDispatcher)
-[![Build Status](https://github.com/ganiputras/AIDispatcher/workflows/Build/badge.svg)](https://github.com/ganiputras/AIDispatcher/actions)
-![.NET 8+](https://img.shields.io/badge/.NET-8.0%2B-blueviolet)
-![MIT License](https://img.shields.io/badge/License-MIT-lightgray.svg)
+## 🚀 AIDispatcher: CQRS & Notification Pipeline for .NET 8+
 
-> **AIDispatcher** adalah framework **CQRS & pipeline** open source untuk .NET 8+  
-> Lebih simpel, fleksibel, dan powerful.  
-> Plug & play — Registrasi cukup 1 baris, pipeline modular, handler auto-discover, siap untuk microservice, Blazor, Console, WebAPI.
-> 
-> Framework dispatcher open source berbasis .NET 8+ yang mengusung arsitektur CQRS dan pipeline modular.
-> Terinspirasi dari MediatR — menawarkan pengalaman yang lebih simpel, terotomatisasi, serta pipeline yang mudah dikembangkan.
-> Semua handler & pipeline didaftarkan otomatis, logging & monitoring siap produksi, serta support fitur advanced seperti timeout, retry, dan circuit breaker (Polly ready).
-> Cukup satu baris untuk mulai — langsung siap digunakan di microservice, Blazor, Console, WebAPI, maupun aplikasi enterprise.
+AIDispatcher adalah library .NET open-source untuk CQRS, Pipeline Behavior, dan Notification Dispatcher modern — terinspirasi MediatR, namun lebih modular, lebih fleksibel, dan lebih mudah dikembangkan.
 
-## Requirements
-- .NET 8.0 or newer
+## ✨ Fitur Utama
+
+- Pipeline Behavior Modular: Logging, Retry, Timeout, Circuit Breaker, Exception Handling, Performance Monitoring, Pre/Post Processor
+- Notification Dispatcher: Parallel & Sequential, Prioritas Handler (`WithPriority`), pipeline untuk logging, timeout, retry, dsb
+- Request Dispatcher (CQRS): Handler dengan Response & Void, pipeline modular
+- Extensible & Plug & Play: Mudah menambah pipeline/behavior via DI
+- Dokumentasi XML lengkap (Bahasa Indonesia): semua public API terdokumentasi untuk IntelliSense
+
+## 📦 Instalasi
+
+Install via NuGet:
+
+```sh
+dotnet add package AIDispatcher
+```
+
+ ## 🛠️ Contoh Penggunaan
+Request Handler (CQRS)
+```sh
+public class GetOrderQuery : IRequest<OrderDto>
+{
+    public int Id { get; set; }
+}
+
+public class GetOrderHandler : IRequestHandler<GetOrderQuery, OrderDto>
+{
+    public Task<OrderDto> Handle(GetOrderQuery request, CancellationToken cancellationToken)
+    {
+        // Query ke database atau source data lain
+        return Task.FromResult(new OrderDto { ... });
+    }
+}
+
+// Kirim request
+var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { Id = 1 });    
+```
+
+
+
+
+## ⚡ Pipeline Built-in
+
+- Logging: Catat request, notifikasi, dan durasi eksekusi
+
+- Retry: Otomatis ulangi jika gagal (Polly)
+
+- Timeout: Batasi waktu maksimal eksekusi
+
+- Circuit Breaker: Putus eksekusi jika error berturut-turut
+
+- Performance: Warning jika eksekusi lambat
+
+- Pre/Post Processor: Hook sebelum/sesudah handler berjalan
+
+- Exception Handling: Tangani error secara global
+
+- Notification Priority: Eksekusi handler sesuai prioritas
+
+##  🆚 Perbandingan dengan MediatR
+
+| Fitur                        | MediatR  | AIDispatcher |
+| ---------------------------- | -------- | ------------ |
+| Request/Response             | ✔️       | ✔️           |
+| Notification/Publish         | ✔️       | ✔️           |
+| Pipeline Modular             | ✔️       | ✔️           |
+| Logging/Performance Pipeline | Opsional | ✔️           |
+| Retry/Circuit Breaker/Polly  | Opsional | ✔️           |
+| Exception Handling Pipeline  | ✔️       | ✔️           |
+| Notification Priority        | ❌        | ✔️           |
+| Notification Parallel/Seq    | ❌        | ✔️           |
+| XML Doc Bahasa Indonesia     | ❌        | ✔️           |
+| Extensible Pipeline          | ✔️       | ✔️           |
+| DI Friendly                  | ✔️       | ✔️           |
+| Blazor Friendly              | ✔️       | ✔️           |
+
+AIDispatcher menghadirkan keunggulan MediatR dengan penambahan fitur advanced seperti parallel notification, priority, built-in retry/circuit breaker, dan pipeline monitoring, siap produksi di aplikasi Anda.
+
+
+##  💡 Migrasi dari MediatR
+- Interface mirip (IRequest, INotification, IRequestHandler, INotificationHandler)
+
+- Pipeline behavior mirip MediatR, lebih mudah di-extend
+
+- Tidak perlu konfigurasi rumit, tinggal ganti DI dan handler
+
+##    📚 Lisensi
+MIT © 2025 Gani Putras
+Kontribusi & feedback sangat diterima!

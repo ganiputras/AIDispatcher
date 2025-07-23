@@ -1,16 +1,12 @@
-<p align="center">
-  <a href="https://github.com/ganiputras/AIDispatcher">
-    <img src="https://raw.githubusercontent.com/ganiputras/AIDispatcher/master/logo.png" alt="AIDispatcher Logo" width="96"/>
-  </a>
-</p>
-<h1 align="center">AIDispatcher</h1>
-<p align="center">
-  Modern, modular, and extensible CQRS Dispatcher for .NET 8+
-</p>
-<p align="center">
-  <a href="https://www.nuget.org/packages/AIDispatcher"><img src="https://img.shields.io/nuget/v/AIDispatcher.svg?style=flat-square" alt="NuGet"></a>
-  <a href="https://github.com/ganiputras/AIDispatcher/blob/master/AIDispatcher/LICENSE.txt"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
-</p>
+![AIDispatcher Logo](https://raw.githubusercontent.com/ganiputras/AIDispatcher/master/logo.png)
+
+# AIDispatcher
+
+**Modern, modular, and extensible CQRS Dispatcher for .NET 8+**
+
+[![NuGet](https://img.shields.io/nuget/v/AIDispatcher.svg?style=flat-square)](https://www.nuget.org/packages/AIDispatcher)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://github.com/ganiputras/AIDispatcher/blob/master/AIDispatcher/LICENSE.txt)
+
 
 ## 🚀 AIDispatcher: CQRS & Notification Pipeline for .NET 8+
 

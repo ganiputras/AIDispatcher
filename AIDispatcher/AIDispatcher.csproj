@@ -22,6 +22,14 @@
 		<DocumentationFile>bin\$(Configuration)\$(TargetFramework)\AIDispatcher.xml</DocumentationFile>
 		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageReleaseNotes>
+			<![CDATA[
+Versi 1.0.0 AIDispatcher:
+- Dukungan Command, Query, Notification
+- Pipeline modular: Logging, Validasi, Retry
+- Eksekusi Notifikasi Paralel dan Prioritas
+]]>
+		</PackageReleaseNotes>
 	</PropertyGroup>
 
 	<PropertyGroup>

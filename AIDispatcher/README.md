@@ -14,7 +14,9 @@
 > Semua handler & pipeline didaftarkan otomatis, logging & monitoring siap produksi, serta support fitur advanced seperti timeout, retry, dan circuit breaker (Polly ready).
 > Cukup satu baris untuk mulai — langsung siap digunakan di microservice, Blazor, Console, WebAPI, maupun aplikasi enterprise.
 
-
+## Requirements
+- .NET 8.0 or newer
+- 
 ## 🚀 Fitur Utama
 
 - **Plug & Play**: Satu baris registrasi, langsung jalan

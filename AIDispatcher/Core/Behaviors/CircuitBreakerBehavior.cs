@@ -11,10 +11,11 @@ namespace AIDispatcher.Core.Behaviors;
 public class CircuitBreakerBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : IRequest<TResponse>
 {
-    private readonly ILogger<CircuitBreakerBehavior<TRequest, TResponse>> _logger;
     private readonly AsyncCircuitBreakerPolicy _circuitBreakerPolicy;
+    private readonly ILogger<CircuitBreakerBehavior<TRequest, TResponse>> _logger;
 
-    public CircuitBreakerBehavior(ILogger<CircuitBreakerBehavior<TRequest, TResponse>> logger, int exceptionsAllowedBeforeBreaking = 2, int durationOfBreakMs = 2000)
+    public CircuitBreakerBehavior(ILogger<CircuitBreakerBehavior<TRequest, TResponse>> logger,
+        int exceptionsAllowedBeforeBreaking = 2, int durationOfBreakMs = 2000)
     {
         _logger = logger;
         _circuitBreakerPolicy = Policy
@@ -24,23 +25,21 @@ public class CircuitBreakerBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
                 TimeSpan.FromMilliseconds(durationOfBreakMs),
                 (ex, breakDelay) =>
                 {
-                    _logger.LogWarning(ex, "Circuit broken for {BreakDelay}ms after exception in {RequestName}.", breakDelay.TotalMilliseconds, typeof(TRequest).Name);
+                    _logger.LogWarning(ex, "Circuit broken for {BreakDelay}ms after exception in {RequestName}.",
+                        breakDelay.TotalMilliseconds, typeof(TRequest).Name);
                 },
-                () =>
-                {
-                    _logger.LogInformation("Circuit reset for {RequestName}.", typeof(TRequest).Name);
-                });
+                () => { _logger.LogInformation("Circuit reset for {RequestName}.", typeof(TRequest).Name); });
     }
 
     /// <summary>
     ///     Menangani pipeline dengan circuit breaker, memutus eksekusi jika error terus-menerus.
     /// </summary>
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
         return await _circuitBreakerPolicy.ExecuteAsync(() => next());
     }
 }
-
 
 /// <summary>
 ///     Pipeline behavior untuk circuit breaker pada handler request tanpa hasil (void command).
@@ -48,10 +47,11 @@ public class CircuitBreakerBehavior<TRequest, TResponse> : IPipelineBehavior<TRe
 public class CircuitBreakerBehavior<TRequest> : IPipelineBehavior<TRequest>
     where TRequest : IRequest
 {
-    private readonly ILogger<CircuitBreakerBehavior<TRequest>> _logger;
     private readonly AsyncCircuitBreakerPolicy _circuitBreakerPolicy;
+    private readonly ILogger<CircuitBreakerBehavior<TRequest>> _logger;
 
-    public CircuitBreakerBehavior(ILogger<CircuitBreakerBehavior<TRequest>> logger, int exceptionsAllowedBeforeBreaking = 2, int durationOfBreakMs = 2000)
+    public CircuitBreakerBehavior(ILogger<CircuitBreakerBehavior<TRequest>> logger,
+        int exceptionsAllowedBeforeBreaking = 2, int durationOfBreakMs = 2000)
     {
         _logger = logger;
         _circuitBreakerPolicy = Policy
@@ -61,12 +61,10 @@ public class CircuitBreakerBehavior<TRequest> : IPipelineBehavior<TRequest>
                 TimeSpan.FromMilliseconds(durationOfBreakMs),
                 (ex, breakDelay) =>
                 {
-                    _logger.LogWarning(ex, "Circuit broken for {BreakDelay}ms after exception in {RequestName}.", breakDelay.TotalMilliseconds, typeof(TRequest).Name);
+                    _logger.LogWarning(ex, "Circuit broken for {BreakDelay}ms after exception in {RequestName}.",
+                        breakDelay.TotalMilliseconds, typeof(TRequest).Name);
                 },
-                () =>
-                {
-                    _logger.LogInformation("Circuit reset for {RequestName}.", typeof(TRequest).Name);
-                });
+                () => { _logger.LogInformation("Circuit reset for {RequestName}.", typeof(TRequest).Name); });
     }
 
     /// <inheritdoc />

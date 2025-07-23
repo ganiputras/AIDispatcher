@@ -1,7 +1,7 @@
-﻿using AIDispatcher.Core.Commons;
+﻿using System.Reflection;
+using AIDispatcher.Core.Commons;
 using AIDispatcher.Core.Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace AIDispatcher.Core.Behaviors;
 
@@ -12,13 +12,16 @@ namespace AIDispatcher.Core.Behaviors;
 public class NotificationTimeoutBehavior<TNotification> : INotificationPipelineBehavior<TNotification>
     where TNotification : INotification
 {
-    private readonly ILogger<NotificationTimeoutBehavior<TNotification>> _logger;
     private static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(3);
+    private readonly ILogger<NotificationTimeoutBehavior<TNotification>> _logger;
 
     public NotificationTimeoutBehavior(ILogger<NotificationTimeoutBehavior<TNotification>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
-    public async Task Handle(TNotification notification, NotificationHandlerDelegate handler, CancellationToken cancellationToken)
+    public async Task Handle(TNotification notification, NotificationHandlerDelegate handler,
+        CancellationToken cancellationToken)
     {
         TimeSpan timeout;
 
@@ -49,6 +52,7 @@ public class NotificationTimeoutBehavior<TNotification> : INotificationPipelineB
             throw new TimeoutException(
                 $"Notification {typeof(TNotification).Name} exceeded the timeout of {timeout.TotalMilliseconds} ms.");
         }
+
         await task;
     }
 }

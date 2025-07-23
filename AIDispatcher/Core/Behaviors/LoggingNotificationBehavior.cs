@@ -12,12 +12,15 @@ public class LoggingNotificationBehavior<TNotification> : INotificationPipelineB
     private readonly ILogger<LoggingNotificationBehavior<TNotification>> _logger;
 
     public LoggingNotificationBehavior(ILogger<LoggingNotificationBehavior<TNotification>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <summary>
     ///     Menangani pipeline notification, mencatat waktu mulai dan selesai eksekusi handler notifikasi.
     /// </summary>
-    public async Task Handle(TNotification notification, NotificationHandlerDelegate handler, CancellationToken cancellationToken)
+    public async Task Handle(TNotification notification, NotificationHandlerDelegate handler,
+        CancellationToken cancellationToken)
     {
         var notificationName = typeof(TNotification).Name;
         _logger.LogInformation("Handling notification {NotificationName} started.", notificationName);

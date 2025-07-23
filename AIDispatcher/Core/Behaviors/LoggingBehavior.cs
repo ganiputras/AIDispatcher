@@ -1,6 +1,6 @@
-﻿using AIDispatcher.Core.Interfaces;
+﻿using System.Diagnostics;
+using AIDispatcher.Core.Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace AIDispatcher.Core.Behaviors;
 
@@ -13,10 +13,13 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     private readonly ILogger<LoggingBehavior<TRequest, TResponse>> _logger;
 
     public LoggingBehavior(ILogger<LoggingBehavior<TRequest, TResponse>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <summary>
-    ///     Menangani eksekusi pipeline untuk request dengan response, mencatat waktu mulai dan selesai dengan informasi profesional.
+    ///     Menangani eksekusi pipeline untuk request dengan response, mencatat waktu mulai dan selesai dengan informasi
+    ///     profesional.
     /// </summary>
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
     {
@@ -28,7 +31,8 @@ public class LoggingBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
         var response = await next();
         stopwatch.Stop();
 
-        _logger.LogInformation("Handling {RequestName} completed in {ElapsedMilliseconds} ms.", requestName, stopwatch.ElapsedMilliseconds);
+        _logger.LogInformation("Handling {RequestName} completed in {ElapsedMilliseconds} ms.", requestName,
+            stopwatch.ElapsedMilliseconds);
 
         return response;
     }
@@ -43,10 +47,13 @@ public class LoggingBehavior<TRequest> : IPipelineBehavior<TRequest>
     private readonly ILogger<LoggingBehavior<TRequest>> _logger;
 
     public LoggingBehavior(ILogger<LoggingBehavior<TRequest>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <summary>
-    ///     Menangani eksekusi pipeline untuk request tanpa response, mencatat waktu mulai dan selesai dengan informasi profesional.
+    ///     Menangani eksekusi pipeline untuk request tanpa response, mencatat waktu mulai dan selesai dengan informasi
+    ///     profesional.
     /// </summary>
     public async Task Handle(TRequest request, RequestHandlerDelegate next, CancellationToken cancellationToken)
     {
@@ -58,6 +65,7 @@ public class LoggingBehavior<TRequest> : IPipelineBehavior<TRequest>
         await next();
         stopwatch.Stop();
 
-        _logger.LogInformation("Handling {RequestName} completed in {ElapsedMilliseconds} ms.", requestName, stopwatch.ElapsedMilliseconds);
+        _logger.LogInformation("Handling {RequestName} completed in {ElapsedMilliseconds} ms.", requestName,
+            stopwatch.ElapsedMilliseconds);
     }
 }

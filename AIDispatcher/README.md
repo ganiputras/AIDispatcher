@@ -1,7 +1,7 @@
 # AIDispatcher
 
 [![NuGet](https://img.shields.io/nuget/v/AIDispatcher?color=green&logo=nuget)](https://www.nuget.org/packages/AIDispatcher)
-[![Build Status](https://github.com/ganiputras/AIDispatcherNew/workflows/Build/badge.svg)](https://github.com/ganiputras/AIDispatcherNew/actions)
+[![Build Status](https://github.com/ganiputras/AIDispatcher/workflows/Build/badge.svg)](https://github.com/ganiputras/AIDispatcher/actions)
 ![.NET 8+](https://img.shields.io/badge/.NET-8.0%2B-blueviolet)
 ![MIT License](https://img.shields.io/badge/License-MIT-lightgray.svg)
 

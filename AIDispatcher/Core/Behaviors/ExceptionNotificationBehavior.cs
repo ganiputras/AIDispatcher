@@ -13,12 +13,15 @@ public class ExceptionNotificationBehavior<TNotification> : INotificationPipelin
     private readonly ILogger<ExceptionNotificationBehavior<TNotification>> _logger;
 
     public ExceptionNotificationBehavior(ILogger<ExceptionNotificationBehavior<TNotification>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <summary>
     ///     Menangani pipeline notifikasi, mencatat dan melempar ulang exception dari handler notifikasi.
     /// </summary>
-    public async Task Handle(TNotification notification, NotificationHandlerDelegate next, CancellationToken cancellationToken)
+    public async Task Handle(TNotification notification, NotificationHandlerDelegate next,
+        CancellationToken cancellationToken)
     {
         try
         {

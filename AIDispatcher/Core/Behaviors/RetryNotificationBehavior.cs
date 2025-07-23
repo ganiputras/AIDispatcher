@@ -14,7 +14,8 @@ public class RetryNotificationBehavior<TNotification> : INotificationPipelineBeh
     private readonly int _retryCount;
     private readonly TimeSpan _retryDelay;
 
-    public RetryNotificationBehavior(ILogger<RetryNotificationBehavior<TNotification>> logger, int retryCount = 3, int delayMs = 200)
+    public RetryNotificationBehavior(ILogger<RetryNotificationBehavior<TNotification>> logger, int retryCount = 3,
+        int delayMs = 200)
     {
         _logger = logger;
         _retryCount = retryCount;
@@ -24,7 +25,8 @@ public class RetryNotificationBehavior<TNotification> : INotificationPipelineBeh
     /// <summary>
     ///     Menangani pipeline dengan melakukan retry jika terjadi exception pada handler notifikasi.
     /// </summary>
-    public async Task Handle(TNotification notification, NotificationHandlerDelegate handler, CancellationToken cancellationToken)
+    public async Task Handle(TNotification notification, NotificationHandlerDelegate handler,
+        CancellationToken cancellationToken)
     {
         var policy = Policy
             .Handle<Exception>()
@@ -33,7 +35,9 @@ public class RetryNotificationBehavior<TNotification> : INotificationPipelineBeh
                 attempt => TimeSpan.FromMilliseconds(_retryDelay.TotalMilliseconds * attempt),
                 (exception, delay, attempt, context) =>
                 {
-                    _logger.LogWarning(exception, "Retry {Attempt} for notification {NotificationName} after {Delay}ms.", attempt, typeof(TNotification).Name, delay.TotalMilliseconds);
+                    _logger.LogWarning(exception,
+                        "Retry {Attempt} for notification {NotificationName} after {Delay}ms.", attempt,
+                        typeof(TNotification).Name, delay.TotalMilliseconds);
                 });
 
         await policy.ExecuteAsync(() => handler());

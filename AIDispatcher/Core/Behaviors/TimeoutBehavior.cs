@@ -12,7 +12,9 @@ public class TimeoutBehavior<TRequest> : IPipelineBehavior<TRequest>
     private readonly ILogger<TimeoutBehavior<TRequest>> _logger;
 
     public TimeoutBehavior(ILogger<TimeoutBehavior<TRequest>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     public async Task Handle(TRequest request, RequestHandlerDelegate next, CancellationToken cancellationToken)
     {
@@ -42,8 +44,6 @@ public class TimeoutBehavior<TRequest> : IPipelineBehavior<TRequest>
     }
 }
 
-
-
 /// <summary>
 ///     Pipeline behavior untuk membatalkan permintaan dengan hasil jika melebihi waktu tertentu (dari ITimeoutAware).
 /// </summary>
@@ -53,7 +53,9 @@ public class TimeoutBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, 
     private readonly ILogger<TimeoutBehavior<TRequest, TResponse>> _logger;
 
     public TimeoutBehavior(ILogger<TimeoutBehavior<TRequest, TResponse>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,

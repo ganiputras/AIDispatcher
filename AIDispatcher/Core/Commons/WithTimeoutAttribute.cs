@@ -10,7 +10,10 @@ public class WithTimeoutAttribute : Attribute
     ///     Membuat atribut timeout dengan nilai tertentu.
     /// </summary>
     /// <param name="timeoutMilliseconds">Waktu maksimal dalam milidetik.</param>
-    public WithTimeoutAttribute(int timeoutMilliseconds) => TimeoutMilliseconds = timeoutMilliseconds;
+    public WithTimeoutAttribute(int timeoutMilliseconds)
+    {
+        TimeoutMilliseconds = timeoutMilliseconds;
+    }
 
     /// <summary>
     ///     Durasi timeout dalam milidetik.

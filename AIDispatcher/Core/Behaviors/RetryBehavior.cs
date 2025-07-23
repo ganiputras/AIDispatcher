@@ -24,7 +24,8 @@ public class RetryBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
     /// <summary>
     ///     Menangani pipeline dengan melakukan retry sesuai policy jika terjadi exception.
     /// </summary>
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
         var policy = Policy
             .Handle<Exception>()
@@ -33,14 +34,13 @@ public class RetryBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TR
                 attempt => TimeSpan.FromMilliseconds(_retryDelay.TotalMilliseconds * attempt),
                 (exception, delay, attempt, context) =>
                 {
-                    _logger.LogWarning(exception, "Retry {Attempt} for {RequestName} after {Delay}ms.", attempt, typeof(TRequest).Name, delay.TotalMilliseconds);
+                    _logger.LogWarning(exception, "Retry {Attempt} for {RequestName} after {Delay}ms.", attempt,
+                        typeof(TRequest).Name, delay.TotalMilliseconds);
                 });
 
         return await policy.ExecuteAsync(() => next());
     }
 }
-
-
 
 /// <summary>
 ///     Pipeline behavior untuk melakukan retry otomatis pada handler request tanpa hasil (void).
@@ -69,7 +69,8 @@ public class RetryBehavior<TRequest> : IPipelineBehavior<TRequest>
                 attempt => TimeSpan.FromMilliseconds(_retryDelay.TotalMilliseconds * attempt),
                 (exception, delay, attempt, context) =>
                 {
-                    _logger.LogWarning(exception, "Retry {Attempt} for {RequestName} after {Delay}ms.", attempt, typeof(TRequest).Name, delay.TotalMilliseconds);
+                    _logger.LogWarning(exception, "Retry {Attempt} for {RequestName} after {Delay}ms.", attempt,
+                        typeof(TRequest).Name, delay.TotalMilliseconds);
                 });
 
         await policy.ExecuteAsync(() => next());

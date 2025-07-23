@@ -13,10 +13,13 @@ public class ExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
     private readonly ILogger<ExceptionBehavior<TRequest, TResponse>> _logger;
 
     public ExceptionBehavior(ILogger<ExceptionBehavior<TRequest, TResponse>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <inheritdoc />
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
         try
         {
@@ -24,7 +27,8 @@ public class ExceptionBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred while processing request {RequestType}.", typeof(TRequest).Name);
+            _logger.LogError(ex, "An unhandled exception occurred while processing request {RequestType}.",
+                typeof(TRequest).Name);
             throw new DispatcherException($"Failed to execute request {typeof(TRequest).Name}.", ex);
         }
     }
@@ -39,7 +43,9 @@ public class ExceptionBehavior<TRequest> : IPipelineBehavior<TRequest>
     private readonly ILogger<ExceptionBehavior<TRequest>> _logger;
 
     public ExceptionBehavior(ILogger<ExceptionBehavior<TRequest>> logger)
-        => _logger = logger;
+    {
+        _logger = logger;
+    }
 
     /// <inheritdoc />
     public async Task Handle(TRequest request, RequestHandlerDelegate next, CancellationToken cancellationToken)
@@ -50,7 +56,8 @@ public class ExceptionBehavior<TRequest> : IPipelineBehavior<TRequest>
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unhandled exception occurred while processing request {RequestType}.", typeof(TRequest).Name);
+            _logger.LogError(ex, "An unhandled exception occurred while processing request {RequestType}.",
+                typeof(TRequest).Name);
             throw new DispatcherException($"Failed to execute request {typeof(TRequest).Name}.", ex);
         }
     }

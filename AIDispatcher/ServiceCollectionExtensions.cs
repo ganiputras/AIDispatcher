@@ -1,15 +1,12 @@
 ﻿using AIDispatcher.Core;
 using AIDispatcher.Core.Behaviors;
-using AIDispatcher.Core.Interfaces;
-
-namespace AIDispatcher;
-
 using AIDispatcher.Core.Commons;
+using AIDispatcher.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System;
-using System.Linq;
 using System.Reflection;
+
+namespace AIDispatcher;
 
 /// <summary>
 ///     Ekstensi untuk registrasi AIDispatcher ke Dependency Injection.
@@ -26,7 +23,7 @@ public static class ServiceCollectionExtensions
     /// <returns>IServiceCollection</returns>
     public static IServiceCollection AddAIDispatcherCore(
         this IServiceCollection services,
-        Action<DispatcherOptions> configure = null)
+        Action<DispatcherOptions>? configure = null)
     {
         // Otomatis register semua handler di seluruh assembly aplikasi
         var assemblies = AppDomain.CurrentDomain.GetAssemblies()
@@ -39,16 +36,19 @@ public static class ServiceCollectionExtensions
 
         // Registrasi pipeline utama (WAJIB), urutan penting:
         // Semua pipeline request/command/query
-        services.AddTransient(typeof(IPipelineBehavior<>), typeof(ExceptionBehavior<>));      // Global error handling (paling luar)
+        services.AddTransient(typeof(IPipelineBehavior<>),
+            typeof(ExceptionBehavior<>)); // Global error handling (paling luar)
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<>), typeof(LoggingBehavior<>));        // Logging pipeline
+        services.AddTransient(typeof(IPipelineBehavior<>), typeof(LoggingBehavior<>)); // Logging pipeline
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
-        services.AddTransient(typeof(IPipelineBehavior<>), typeof(TimeoutBehavior<>));        // Timeout
+        services.AddTransient(typeof(IPipelineBehavior<>), typeof(TimeoutBehavior<>)); // Timeout
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TimeoutBehavior<,>));
 
         // Pipeline notification (WAJIB): ExceptionBehavior harus didaftarkan terakhir (paling luar)
-        services.AddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationTimeoutBehavior<>));      // Timeout notification
-        services.AddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationExceptionBehavior<>));    // Global error handling notification
+        services.AddTransient(typeof(INotificationPipelineBehavior<>),
+            typeof(NotificationTimeoutBehavior<>)); // Timeout notification
+        services.AddTransient(typeof(INotificationPipelineBehavior<>),
+            typeof(NotificationExceptionBehavior<>)); // Global error handling notification
 
         // Konfigurasi opsi custom, jika ada (opsional)
         if (configure != null)
@@ -72,18 +72,26 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAIDispatcherAdvanced(this IServiceCollection services)
     {
         // Pipeline request advanced/optional
-        services.AddTransient(typeof(IPipelineBehavior<>), typeof(PerformanceBehavior<>));             // Performance monitor (void)
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));           // Performance monitor (dengan response)
-        services.AddTransient(typeof(IPipelineBehavior<>), typeof(RetryBehavior<>));                   // Retry otomatis saat error (void)
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(RetryBehavior<,>));                 // Retry otomatis saat error (dengan response)
-        services.AddTransient(typeof(IPipelineBehavior<>), typeof(CircuitBreakerBehavior<>));          // Circuit breaker proteksi overload  (void)
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CircuitBreakerBehavior<,>));        // Circuit breaker proteksi overload  (dengan response)
+        services.AddTransient(typeof(IPipelineBehavior<>), typeof(PerformanceBehavior<>)); // Performance monitor (void)
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(PerformanceBehavior<,>)); // Performance monitor (dengan response)
+        services.AddTransient(typeof(IPipelineBehavior<>), typeof(RetryBehavior<>)); // Retry otomatis saat error (void)
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(RetryBehavior<,>)); // Retry otomatis saat error (dengan response)
+        services.AddTransient(typeof(IPipelineBehavior<>),
+            typeof(CircuitBreakerBehavior<>)); // Circuit breaker proteksi overload  (void)
+        services.AddTransient(typeof(IPipelineBehavior<,>),
+            typeof(CircuitBreakerBehavior<,>)); // Circuit breaker proteksi overload  (dengan response)
 
         // Pipeline notification advanced/optional
-        services.AddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationPerformanceBehavior<>)); // Performance monitor notification
-        services.AddTransient(typeof(INotificationPipelineBehavior<>), typeof(RetryNotificationBehavior<>));       // Retry notification
-        services.AddTransient(typeof(INotificationPipelineBehavior<>), typeof(CircuitBreakerNotificationBehavior<>)); // Circuit breaker notification
-        services.AddTransient(typeof(INotificationPipelineBehavior<>), typeof(LoggingNotificationBehavior<>));        // Logging notification
+        services.AddTransient(typeof(INotificationPipelineBehavior<>),
+            typeof(NotificationPerformanceBehavior<>)); // Performance monitor notification
+        services.AddTransient(typeof(INotificationPipelineBehavior<>),
+            typeof(RetryNotificationBehavior<>)); // Retry notification
+        services.AddTransient(typeof(INotificationPipelineBehavior<>),
+            typeof(CircuitBreakerNotificationBehavior<>)); // Circuit breaker notification
+        services.AddTransient(typeof(INotificationPipelineBehavior<>),
+            typeof(LoggingNotificationBehavior<>)); // Logging notification
 
         return services;
     }
@@ -94,7 +102,8 @@ public static class ServiceCollectionExtensions
     /// <param name="services">Service collection aplikasi</param>
     /// <param name="assemblies">Daftar assembly</param>
     /// <param name="openGenericType">Tipe interface handler yang ingin diregistrasi</param>
-    private static void RegisterGenericHandlers(IServiceCollection services, Assembly[] assemblies, Type openGenericType)
+    private static void RegisterGenericHandlers(IServiceCollection services, Assembly[] assemblies,
+        Type openGenericType)
     {
         // Temukan semua class handler yang mengimplementasi interface generic, lalu register ke DI
         var handlerTypes = assemblies
@@ -106,9 +115,7 @@ public static class ServiceCollectionExtensions
             .ToList();
 
         foreach (var handler in handlerTypes)
-        {
             // TryAddTransient = hanya tambah jika belum ada, aman untuk handler (anti double registration)
             services.TryAddTransient(handler.Interface, handler.Handler);
-        }
     }
 }

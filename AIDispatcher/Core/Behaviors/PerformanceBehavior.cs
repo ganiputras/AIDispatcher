@@ -1,8 +1,8 @@
-﻿using AIDispatcher.Core.Commons;
+﻿using System.Diagnostics;
+using AIDispatcher.Core.Commons;
 using AIDispatcher.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Diagnostics;
 
 namespace AIDispatcher.Core.Behaviors;
 
@@ -23,7 +23,8 @@ public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         _thresholdMs = options.Value.PerformanceThresholdMs;
     }
 
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next,
+        CancellationToken cancellationToken)
     {
         var requestName = typeof(TRequest).Name;
         var stopwatch = Stopwatch.StartNew();
@@ -38,14 +39,13 @@ public class PerformanceBehavior<TRequest, TResponse> : IPipelineBehavior<TReque
         _logger.LogInformation("Handling {RequestName} completed in {ElapsedMilliseconds} ms.", requestName, elapsedMs);
 
         if (elapsedMs > _thresholdMs)
-        {
-            _logger.LogWarning("Performance warning: {RequestName} took {ElapsedMilliseconds} ms (threshold: {Threshold} ms).", requestName, elapsedMs, _thresholdMs);
-        }
+            _logger.LogWarning(
+                "Performance warning: {RequestName} took {ElapsedMilliseconds} ms (threshold: {Threshold} ms).",
+                requestName, elapsedMs, _thresholdMs);
 
         return response;
     }
 }
-
 
 /// <summary>
 ///     Pipeline behavior untuk memonitor dan mencatat durasi eksekusi handler permintaan tanpa hasil (command void).
@@ -59,7 +59,7 @@ public class PerformanceBehavior<TRequest> : IPipelineBehavior<TRequest>
     private readonly int _thresholdMs;
 
     /// <summary>
-    ///     Inisialisasi <see cref="PerformanceBehavior{TRequest}"/>.
+    ///     Inisialisasi <see cref="PerformanceBehavior{TRequest}" />.
     /// </summary>
     /// <param name="logger">Logger untuk mencatat informasi dan warning.</param>
     /// <param name="options">Opsi dispatcher, ambil nilai threshold.</param>
@@ -87,9 +87,8 @@ public class PerformanceBehavior<TRequest> : IPipelineBehavior<TRequest>
         _logger.LogInformation("Handling {RequestName} completed in {ElapsedMilliseconds} ms.", requestName, elapsedMs);
 
         if (elapsedMs > _thresholdMs)
-        {
-            _logger.LogWarning("Performance warning: {RequestName} took {ElapsedMilliseconds} ms (threshold: {Threshold} ms).",
+            _logger.LogWarning(
+                "Performance warning: {RequestName} took {ElapsedMilliseconds} ms (threshold: {Threshold} ms).",
                 requestName, elapsedMs, _thresholdMs);
-        }
     }
 }

@@ -1,0 +1,69 @@
+﻿✅ Step 1: Antarmuka Dasar
+Kita mulai dengan mendefinisikan antarmuka berikut:
+
+IRequest<TResponse> — permintaan dengan hasil
+
+IRequest — permintaan tanpa hasil (seperti command)
+
+IRequestHandler<TRequest, TResponse> — handler permintaan dengan hasil
+
+IRequestHandler<TRequest> — handler permintaan tanpa hasil
+
+INotification — notifikasi (tidak ada hasil)
+
+INotificationHandler<TNotification> — handler notifikasi
+
+
+
+🔁 Step 2: Implementasi Dispatcher dasar
+Akan berisi:
+
+Send<TRequest, TResponse>()
+
+Send<TRequest>()
+
+Publish<TNotification>()
+
+✅ Tujuan utama dari class Dispatcher ini:
+
+    - Meneruskan request ke handler yang sesuai (Send)
+
+    - Meneruskan notification ke semua handler yang terdaftar (Publish)
+
+    - Mendukung async, CancellationToken, dan DI
+
+    📦 Struktur Minimal DI
+        Kita asumsikan semua handler sudah diregistrasi di Dependency Injection (misal IServiceProvider).
+        Kita akan gunakan IServiceProvider.GetRequiredService<T>() dan GetServices<T>() untuk resolve handler.
+
+    📌 Penjelasan Singkat
+        Send<TRequest, TResponse>() → resolve 1 handler, return hasil
+
+        Send<TRequest>() → resolve 1 handler, tanpa hasil
+
+        Publish<TNotification>() → resolve semua handler, dan jalankan semuanya serial (bisa dibuat paralel nanti)
+
+
+✅ Step 3: Pipeline Behavior
+🎯 Tujuan:
+        PipelineBehavior adalah fitur middleware yang memungkinkan kamu:
+
+        Melakukan tindakan sebelum dan sesudah Handler dijalankan
+
+        Menyisipkan logging, validasi, profiling, audit, retry, dsb
+
+
+
+ 🔁 Hubungan antar Komponen
+[Dispatcher] -> [Pipeline (jika ada)] -> [Handler] -> [Response (jika ada)]
+
+[NotificationDispatcher] -> [Pipeline (jika ada)] -> [Semua Handler]
+
+🚀 Kesimpulan Sederhana
+| Interface                         | Tujuan                | Banyak Handler? | Return Value? |
+| --------------------------------- | --------------------- | --------------- | ------------- |
+| `IRequestHandler<TReq, TRes>`     | Command/query         | ❌              | ✅           |
+| `IRequestHandler<TReq>`           | Command (void)        | ❌              | ❌           |
+| `INotificationHandler<TNotif>`    | Notifikasi            | ✅              | ❌           |
+| `IPipelineBehavior<>`             | Middleware command    | ❌              | ✅           |
+| `INotificationPipelineBehavior<>` | Middleware notifikasi | ✅              | ❌           |

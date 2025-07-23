@@ -1,184 +1,173 @@
 # AIDispatcher
 
-AIDispatcher adalah framework ringan berbasis .NET 8 yang menggantikan MediatR untuk CQRS, pipeline behavior, dan event notification. Dirancang dengan performa tinggi, dukungan parallel, prioritas handler, dan pengembangan modular.
+[![NuGet](https://img.shields.io/nuget/v/AIDispatcher?color=green&logo=nuget)](https://www.nuget.org/packages/AIDispatcher)
+[![Build Status](https://github.com/ganiputras/AIDispatcherNew/workflows/Build/badge.svg)](https://github.com/ganiputras/AIDispatcherNew/actions)
+![.NET 8+](https://img.shields.io/badge/.NET-8.0%2B-blueviolet)
+![MIT License](https://img.shields.io/badge/License-MIT-lightgray.svg)
+
+> **AIDispatcher** adalah framework **CQRS & pipeline** open source untuk .NET 8+  
+> Lebih simpel, fleksibel, dan powerful.  
+> Plug & play — Registrasi cukup 1 baris, pipeline modular, handler auto-discover, siap untuk microservice, Blazor, Console, WebAPI.
+> 
+> Framework dispatcher open source berbasis .NET 8+ yang mengusung arsitektur CQRS dan pipeline modular.
+> Terinspirasi dari MediatR — menawarkan pengalaman yang lebih simpel, terotomatisasi, serta pipeline yang mudah dikembangkan.
+> Semua handler & pipeline didaftarkan otomatis, logging & monitoring siap produksi, serta support fitur advanced seperti timeout, retry, dan circuit breaker (Polly ready).
+> Cukup satu baris untuk mulai — langsung siap digunakan di microservice, Blazor, Console, WebAPI, maupun aplikasi enterprise.
+
 
 ## 🚀 Fitur Utama
 
-* **Command / Query Dispatcher** (dengan dukungan pipeline)
-* **Event Notification Dispatcher** (dengan dukungan paralel & prioritas)
-* **Built-in Behaviors**:
+- **Plug & Play**: Satu baris registrasi, langsung jalan
+- **Pipeline Modular**: Exception, Logging, Timeout, Performance, Retry, Circuit Breaker, dsb
+- **Auto-Discovery**: Handler & pipeline otomatis terdaftar
+- **Priority & Parallel Notification**
+- **Timeout & Cancellation per-request/per-notification**
+- **ILogger Integration**: Log siap production
+- **Polly Ready**: Retry & circuit breaker support
+- **Mudah di-extend** (pipeline & handler custom)
+- **Siap untuk microservice, Blazor, Console, WebAPI, dll**
 
-  * Validation
-  * Tracing
-  * Retry
-  * Timeout
-  * Circuit Breaker
-  * Metrics
-  * Logging (via NotificationBehavior)
-* **Dukungan Pipeline Modular** untuk extensibility
-* **Support Dependency Injection** (termasuk `IDispatcherRoot` scope-less)
-* **Performance-friendly**: Tanpa refleksi berlebihan
-
----
 
 ## 📦 Instalasi
 
-```
-Install-Package AIDispatcher
-```
+1. **Tambahkan NuGet Package**
+    ```bash
+    dotnet add package AIDispatcher
+    dotnet add package Polly
+    ```
 
----
+2. **Registrasi di DI (Dependency Injection)**
+    ```csharp
+    // Pipeline utama (wajib)
+    builder.Services.AddAIDispatcherCore();
 
-## 🧩 Konfigurasi Dasar
+    // Pipeline advanced/optional (performance, retry, circuit breaker, dsb)
+    builder.Services.AddAIDispatcherAdvanced();
+    ```
 
-Di dalam `Program.cs`:
 
+
+## ⚡️ Quick Start
+
+**Command & Handler**
 ```csharp
-builder.Services.AddAIDispatcher(typeof(Program).Assembly);
-```
-
-Atau dengan opsi lanjutan:
-
-```csharp
-builder.Services.AddAIDispatcher(options =>
+public record PingCommand(string Message) : IRequest<string>;
+public class PingCommandHandler : IRequestHandler<PingCommand, string>
 {
-    options.ParallelNotificationHandlers = true;
-    options.NotificationHandlerPriorityEnabled = true;
-}, typeof(Program).Assembly);
-```
-
----
-
-## 🧪 Contoh Penggunaan
-
-### Command / Query
-
-```csharp
-public record CreateUser(string Name) : IDispatcherRequest<Guid>;
-
-public class CreateUserHandler : IDispatcherHandler<CreateUser, Guid>
-{
-    public Task<Guid> Handle(CreateUser request, CancellationToken cancellationToken)
-    {
-        return Task.FromResult(Guid.NewGuid());
-    }
+    public Task<string> Handle(PingCommand request, CancellationToken ct)
+        => Task.FromResult($"Reply: {request.Message}");
 }
-```
+ ```
 
-Panggil dengan:
-
+**Notification & Handler**
 ```csharp
-var result = await dispatcher.SendAsync<CreateUser, Guid>(new CreateUser("Test User"));
-```
-
----
-
-### Notification / Event
-
-```csharp
-public record UserCreated(Guid Id) : INotification;
-
-public class SendWelcomeEmailHandler : INotificationHandler<UserCreated>
+public class NotifyMe : INotification
 {
-    public Task Handle(UserCreated notification, CancellationToken cancellationToken)
+    public string Message { get; }
+    public NotifyMe(string message) => Message = message;
+}
+public class NotifyMeHandler : INotificationHandler<NotifyMe>
+{
+    public Task Handle(NotifyMe notification, CancellationToken ct)
     {
-        Console.WriteLine($"Welcome email sent to user: {notification.Id}");
+        Console.WriteLine($"[NotifyMeHandler] {notification.Message}");
         return Task.CompletedTask;
     }
 }
-```
+ ```
 
-Panggil:
-
+**Memanggil di Program.cs**
 ```csharp
-await dispatcher.PublishAsync(new UserCreated(userId));
-```
+var dispatcher = app.Services.GetRequiredService<IDispatcher>();
+var result = await dispatcher.Send<PingCommand, string>(new PingCommand("Hello!"));
+await dispatcher.Publish(new NotifyMe("Halo dari AIDispatcher!"));
+ ```
 
----
 
-## ⚙️ Notification Pipeline
+## 🏗 Pipeline Bawaan
 
-### Contoh Logging Behavior
+| Pipeline                          | Command | Notification                            | Fungsionalitas            |
+| --------------------------------- | ------- | --------------------------------------- | ------------------------- |
+| ExceptionBehavior                 | ✔️      | ✔️ (NotificationExceptionBehavior)      | Penanganan global error   |
+| LoggingBehavior                   | ✔️      | ✔️ (LoggingNotificationBehavior)        | Logging start/end         |
+| TimeoutBehavior                   | ✔️      | ✔️ (NotificationTimeoutBehavior)        | Timeout per-request       |
+| PerformanceBehavior (optional)    | ✔️      | ✔️ (NotificationPerformanceBehavior)    | Warning slow handler      |
+| RetryBehavior (optional)          | ✔️      | ✔️ (RetryNotificationBehavior)          | Otomatis retry saat error |
+| CircuitBreakerBehavior (optional) | ✔️      | ✔️ (CircuitBreakerNotificationBehavior) | Proteksi overload         |
 
+
+## 🚦 Urutan Registrasi Pipeline
+Pipeline dijalankan sesuai urutan pendaftaran di DI.
+Pipeline yang ingin jadi paling luar (misal Exception/Logging) daftarkan TERAKHIR.
 ```csharp
-public class LoggingNotificationBehavior<T> : INotificationBehavior<T> where T : notnull
-{
-    public async Task HandleAsync(T notification, CancellationToken ct, Func<Task> next)
-    {
-        Console.WriteLine($"[LOG] Start: {typeof(T).Name}");
-        await next();
-        Console.WriteLine($"[LOG] End: {typeof(T).Name}");
-    }
-}
-```
+services.TryAddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationTimeoutBehavior<>));
+services.TryAddTransient(typeof(INotificationPipelineBehavior<>), typeof(NotificationExceptionBehavior<>)); // outermost
+ ```
 
-### Retry Notification Behavior
 
+
+## 🧪 Contoh Test Pipeline
 ```csharp
-public class RetryNotificationBehavior<T> : INotificationBehavior<T> where T : notnull
-{
-    public async Task HandleAsync(T notification, CancellationToken ct, Func<Task> next)
-    {
-        int retries = 3;
-        while (true)
-        {
-            try
-            {
-                await next();
-                return;
-            }
-            catch when (--retries > 0)
-            {
-                Console.WriteLine($"Retrying {typeof(T).Name}...");
-            }
-        }
-    }
-}
-```
+var builder = Host.CreateApplicationBuilder();
+builder.Services.AddAIDispatcherCore();
+builder.Services.AddAIDispatcherAdvanced();
 
----
+var app = builder.Build();
+var dispatcher = app.Services.GetRequiredService<IDispatcher>();
 
-## 🧠 Advanced
+// Uncomment untuk menjalankan test
+await TestExceptionBehavior(dispatcher);
+await TestLoggingBehavior(dispatcher);
+await TestTimeoutBehavior(dispatcher);
+await TestPerformanceBehavior(dispatcher);
+await TestRetryBehavior(dispatcher);
+await TestCircuitBreakerBehavior(dispatcher);
 
-* `IDispatcherRoot`: digunakan di background service / hosted / entry-point:
-
+await TestNotificationTimeoutBehavior(dispatcher);
+await TestNotificationExceptionBehavior(dispatcher);
+await TestNotificationPerformanceBehavior(dispatcher);
+await TestNotificationRetryBehavior(dispatcher);
+await TestNotificationCircuitBreakerBehavior(dispatcher);
+await TestNotificationLoggingBehavior(dispatcher);
+ ```
 ```csharp
-var result = await app.Services.GetRequiredService<IDispatcherRoot>().SendAsync<SomeCommand, string>(...);
-```
+=== TEST: Timeout pada Notification ===
 
-* `NotificationHandlerPriorityEnabled`: jalankan handler berdasarkan prioritas jika diaktifkan
-* `ParallelNotificationHandlers`: jalankan handler notifikasi secara paralel
+[SKENARIO 1] Notifikasi timeout 3 detik, handler delay 2 detik (harus selesai).
+[Task Handle] Notifikasi timeout 3 detik (simulasi delay 2 detik)
+[BERHASIL] Notifikasi selesai sebelum timeout.
 
----
+[SKENARIO 2] Notifikasi timeout default 1.5 detik, handler delay 2 detik (harus timeout).
+warn: AIDispatcher.Core.Behaviors.NotificationTimeoutBehavior[0]
+      Notification handler Test_NotificationTimeout timed out after 1500 ms.
+[BERHASIL] Notifikasi gagal tepat waktu (timeout): Notification Test_NotificationTimeout exceeded the timeout of 1500 ms.
 
-## 📁 Struktur Interface Utama
+ ```
 
-```csharp
-// Command / Query
-IDispatcherRequest<TResult>
-IDispatcherHandler<TRequest, TResult>
+## 💡 Kustomisasi & Ekstensi
 
-// Notification
-INotification
-INotificationHandler<TNotification>
-INotificationBehavior<TNotification>
-INotificationHandlerWithPriority (optional)
-```
+- Buat pipeline baru: implement IPipelineBehavior<,>, INotificationPipelineBehavior<>, dst.
+- Pipeline otomatis terdaftar sesuai urutan di DI.
+- Bisa override pipeline, tambah logging, validasi, rate limiting, dsb.
 
----
 
-## 🏁 Roadmap
+## 📝 FAQ
+- Q: Apakah AIDispatcher bisa drop-in replace MediatR?
+- A: Ya, tinggal ganti dependency DI dan interface-nya (lihat sample).
 
-* [x] Dispatcher Core
-* [x] Notification Parallel
-* [x] Notification Priority
-* [x] Notification Pipeline
-* [ ] Unit Test + Sample
-* [ ] Source Generator (planned)
-* [ ] Benchmark Performance vs MediatR
+- Q: Apakah support paralel handler untuk notification?
+- A: Bisa, cek opsi DispatcherOptions.PublishStrategy.
 
----
+- Q: Cara pakai timeout per-request/per-notification?
+- A: Implement interface ITimeoutAware pada request/notification.
 
-## 🧾 Lisensi
+- Q: Support .NET 8 / Blazor?
+- A: 100% support.
 
+
+## ✨ Kontribusi
+- Dukung project ini via GitHub Sponsor
+- Follow @ganiputras di GitHub
+
+## Lisensi
 MIT License

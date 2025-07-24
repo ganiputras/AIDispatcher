@@ -12,76 +12,108 @@ class Program
     {
         var builder = Host.CreateApplicationBuilder();
 
-        // ========== Registrasi fitur utama AIDispatcher ==========
 
-        // Pipeline core (logging, exception, basic pipeline, dsb)
-        builder.Services.AddAIDispatcherCore();        // [WAJIB] Pipeline dasar (logging, exception, dll)
-                                                       // Pipeline advanced (retry, timeout, circuit breaker, performance, dsb)
-        builder.Services.AddAIDispatcherAdvanced();    // [OPSIONAL] Fitur lanjutan, aktifkan jika ingin retry/timeout/circuit breaker otomatis
+        // ===========================================
+        // Registrasi Fitur Utama AIDispatcher ke DI
+        // ===========================================
 
-        //// ========== Konfigurasi global opsi Dispatcher ==========
+        /// <summary>
+        /// WAJIB. Registrasi handler dan pipeline inti (logging, exception, dsb).
+        /// </summary>
+        builder.Services.AddAIDispatcherCore();
+
+        /// <summary>
+        /// OPSIONAL. Registrasi pipeline lanjutan (retry, timeout, circuit breaker, performance, dsb).
+        /// Aktifkan jika ingin fitur-fitur advanced.
+        /// </summary>
+        // builder.Services.AddAIDispatcherAdvanced();
+
+        // ===========================================
+        // Konfigurasi Global Opsi Dispatcher (Opsional)
+        // ===========================================
         //builder.Services.Configure<DispatcherOptions>(opt =>
         //{
-        //    opt.PublishStrategy = PublishStrategy.Parallel;  // Parallel: semua handler notifikasi dijalankan bersamaan (default: Sequential)
-        //    opt.PerformanceThresholdMs = 1000;              // Threshold waktu eksekusi (ms) sebelum keluar warning performance
+        //    opt.PublishStrategy = PublishStrategy.Parallel;      // Eksekusi notifikasi: Parallel/Sequential
+        //    opt.PerformanceThresholdMs = 1000;                  // Warning jika eksekusi > 1000ms
         //});
 
-        //// ========== Pipeline Behavior untuk Request/Command/Query ==========
+        // ===========================================
+        // Pipeline Behavior untuk Request/Command/Query
+        // ===========================================
 
-        //// Logging pipeline - mencatat waktu mulai, selesai, dan durasi setiap request/command/query
-        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+        // Logging pipeline - Catat waktu & hasil request/command/query
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 
-        //// Retry pipeline - otomatis retry jika handler gagal/throw exception (Polly)
-        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RetryBehavior<,>));
+        // Exception pipeline - Tangkap & handle global error
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
 
-        //// Timeout pipeline - batasi waktu maksimal eksekusi handler (timeout throw exception)
-        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TimeoutBehavior<,>));
+        // Retry pipeline - Retry otomatis jika handler gagal (Polly)
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(RetryBehavior<,>));
 
-        //// Performance pipeline - warning/log jika eksekusi handler lebih lama dari threshold
-        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
+        // Timeout pipeline - Batasi waktu eksekusi handler
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(TimeoutBehavior<,>));
 
-        //// Exception pipeline - tangkap dan handle global error pada handler
-        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ExceptionBehavior<,>));
+        // Circuit breaker pipeline - Putus sementara handler error beruntun
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(CircuitBreakerBehavior<,>));
 
-        //// Pre/Post processor pipeline - agar pipeline mendukung pre/post processor ala MediatR
-        //builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PrePostProcessorBehavior<,>));
+        // Performance pipeline - Warning/log jika eksekusi lambat
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PerformanceBehavior<,>));
 
-        //// ========== Pipeline Behavior untuk Notifikasi ==========
+        // Pre/Post processor pipeline - Mendukung hook pre/post ala MediatR
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(PrePostProcessorBehavior<,>));
 
-        //// Logging untuk pipeline notifikasi (catat waktu eksekusi handler notifikasi)
-        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(LoggingNotificationBehavior<>));
 
-        //// Timeout pipeline untuk notifikasi (handler otomatis dibatalkan jika melebihi waktu)
-        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationTimeoutBehavior<>));
+        // Validation pipeline - Validasi otomatis request (gunakan FluentValidation jika tersedia)
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(MyValidationBehavior<,>));
 
-        //// Retry pipeline untuk notifikasi (handler akan dicoba ulang jika error)
-        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(RetryNotificationBehavior<>));
+        // Caching pipeline - Cache hasil handler/query (jika tersedia)
+        // builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(MyCachingBehavior<,>));
 
-        //// Circuit breaker pipeline untuk notifikasi (jika error berturut-turut, eksekusi handler diputus sementara)
-        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(CircuitBreakerNotificationBehavior<>));
 
-        //// Performance pipeline untuk notifikasi (warning jika handler lambat)
-        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationPerformanceBehavior<>));
+        // ===========================================
+        // Pipeline Behavior untuk Notification
+        // ===========================================
 
-        //// Exception pipeline untuk notifikasi (tangkap & handle error pada handler notifikasi)
-        //builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationExceptionBehavior<>));
+        // Logging pipeline untuk notifikasi
+        // builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(LoggingNotificationBehavior<>));
 
-        //// ========== Registrasi Pre/Post Processor (opsional, jika ingin hook custom) ==========
+        // Exception pipeline untuk notifikasi
+        // builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationExceptionBehavior<>));
 
-        //// Pre-processor: kode yang dijalankan SEBELUM handler utama
-        //builder.Services.AddScoped(typeof(IRequestPreProcessor<>), typeof(MyLoggingPreProcessor<>)); // Contoh: logging awal request
+        // Retry pipeline untuk notifikasi
+        // builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(RetryNotificationBehavior<>));
 
-        //// Post-processor: kode yang dijalankan SETELAH handler utama selesai
-        //builder.Services.AddScoped(typeof(IRequestPostProcessor<,>), typeof(MyLoggingPostProcessor<,>)); // Contoh: audit hasil response
+        // Timeout pipeline untuk notifikasi
+        // builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationTimeoutBehavior<>));
 
-        //// ========== Registrasi Handler (command/query/notification) ==========
+        // Circuit breaker pipeline untuk notifikasi
+        // builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(CircuitBreakerNotificationBehavior<>));
 
-        //// Handler untuk command/query/notification tetap perlu didaftarkan
-        //builder.Services.AddScoped<IRequestHandler<MyCommand>, MyCommandHandler>();
-        //builder.Services.AddScoped<IRequestHandler<MyQuery, MyResult>, MyQueryHandler>();
-        //builder.Services.AddScoped<INotificationHandler<MyNotification>, MyNotificationHandler>();
+        // Performance pipeline untuk notifikasi
+        // builder.Services.AddScoped(typeof(INotificationPipelineBehavior<>), typeof(NotificationPerformanceBehavior<>));
 
-        // ========== End Registrasi ==========
+        // ===========================================
+        // Registrasi Pre/Post Processor (Opsional)
+        // ===========================================
+
+        // Pre-processor: kode dijalankan SEBELUM handler utama
+        // builder.Services.AddScoped(typeof(IRequestPreProcessor<>), typeof(MyLoggingPreProcessor<>));
+
+        // Post-processor: kode dijalankan SETELAH handler utama selesai
+        // builder.Services.AddScoped(typeof(IRequestPostProcessor<,>), typeof(MyLoggingPostProcessor<,>));
+
+        // ===========================================
+        // Registrasi Handler (Command/Query/Notification)
+        // ===========================================
+
+        // Handler perlu didaftarkan manual jika tidak auto-scan (umumnya auto lewat AddAIDispatcherCore)
+        // builder.Services.AddScoped<IRequestHandler<MyCommand>, MyCommandHandler>();
+        // builder.Services.AddScoped<IRequestHandler<MyQuery, MyResult>, MyQueryHandler>();
+        // builder.Services.AddScoped<INotificationHandler<MyNotification>, MyNotificationHandler>();
+
+        // ===========================================
+        // End Registrasi
+        // ===========================================
 
 
         var app = builder.Build();

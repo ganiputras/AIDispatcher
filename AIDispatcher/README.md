@@ -115,37 +115,6 @@ var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { I
 | Blazor Friendly              | ✔️           |
 
   
-##  🛠️ Pipeline Behaviors
-Untuk Request/Command/Query
-| Behavior                 | Cara Registrasi                                                 | Deskripsi Singkat                                    |
-| ------------------------ | --------------------------------------------------------------- | ---------------------------------------------------- |
-| LoggingBehavior          | AddScoped\<IPipelineBehavior<,>, LoggingBehavior<,>>()          | Logging setiap eksekusi request/command/query        |
-| ExceptionBehavior        | AddScoped\<IPipelineBehavior<,>, ExceptionBehavior<,>>()        | Menangani error di seluruh pipeline                  |
-| RetryBehavior            | AddScoped\<IPipelineBehavior<,>, RetryBehavior<,>>()            | Retry otomatis jika terjadi error (Polly)            |
-| TimeoutBehavior          | AddScoped\<IPipelineBehavior<,>, TimeoutBehavior<,>>()          | Membatasi waktu maksimal eksekusi handler            |
-| CircuitBreakerBehavior   | AddScoped\<IPipelineBehavior<,>, CircuitBreakerBehavior<,>>()   | Putus handler sementara jika error berulang-ulang    |
-| PerformanceBehavior      | AddScoped\<IPipelineBehavior<,>, PerformanceBehavior<,>>()      | Warning/log jika handler lambat                      |
-| ValidationBehavior       | AddScoped\<IPipelineBehavior<,>, ValidationBehavior<,>>()       | Validasi otomatis request/command (FluentValidation) |
-| CachingBehavior          | AddScoped\<IPipelineBehavior<,>, CachingBehavior<,>>()          | Cache hasil handler/query                            |
-| PrePostProcessorBehavior | AddScoped\<IPipelineBehavior<,>, PrePostProcessorBehavior<,>>() | Hook sebelum/sesudah handler                         |
-
-
-Untuk Notification
-| Behavior                           | Cara Registrasi                                                                     | Deskripsi Singkat                           |
-| ---------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------- |
-| LoggingNotificationBehavior        | AddScoped\<INotificationPipelineBehavior<>, LoggingNotificationBehavior<>>()        | Logging eksekusi handler notifikasi         |
-| NotificationExceptionBehavior      | AddScoped\<INotificationPipelineBehavior<>, NotificationExceptionBehavior<>>()      | Menangani error pada handler notifikasi     |
-| RetryNotificationBehavior          | AddScoped\<INotificationPipelineBehavior<>, RetryNotificationBehavior<>>()          | Retry handler notifikasi jika terjadi error |
-| NotificationTimeoutBehavior        | AddScoped\<INotificationPipelineBehavior<>, NotificationTimeoutBehavior<>>()        | Timeout handler notifikasi                  |
-| CircuitBreakerNotificationBehavior | AddScoped\<INotificationPipelineBehavior<>, CircuitBreakerNotificationBehavior<>>() | Putus sementara handler notifikasi error    |
-| NotificationPerformanceBehavior    | AddScoped\<INotificationPipelineBehavior<>, NotificationPerformanceBehavior<>>()    | Warning jika handler notifikasi lambat      |
-
-
-
-Pre & Post Processor (Opsional, Advanced)
-- IRequestPreProcessor: Eksekusi custom logic sebelum handler dijalankan (misal: logging, auth).
-- IRequestPostProcessor: Eksekusi custom logic setelah handler selesai (misal: audit, metrics).
-
 
 
 ##    📚 Lisensi

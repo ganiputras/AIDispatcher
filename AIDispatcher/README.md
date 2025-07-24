@@ -12,6 +12,11 @@
 
 AIDispatcher adalah library .NET open-source untuk CQRS, Pipeline Behavior, dan Notification Dispatcher modern — terinspirasi MediatR, namun lebih modular, lebih fleksibel, dan lebih mudah dikembangkan.
 
+##  💡 Integrasi & Kompatibilitas
+AIDispatcher mengadopsi interface dan pola standar CQRS yang sudah umum di komunitas .NET (IRequest, INotification, dll), sehingga mudah diadopsi untuk proyek baru maupun migrasi dari solusi lain.
+Semua pipeline dan behavior bersifat modular, dapat diaktifkan atau dikustomisasi sesuai kebutuhan aplikasi.
+
+
 ## ✨ Fitur Utama
 
 - Pipeline Behavior Modular: Logging, Retry, Timeout, Circuit Breaker, Exception Handling, Performance Monitoring, Pre/Post Processor
@@ -27,6 +32,28 @@ Install via NuGet:
 ```sh
 dotnet add package AIDispatcher
 ```
+
+## ⚡ Registrasi Dispatcher
+```sh
+// WAJIB - Registrasi inti AIDispatcher (handler, pipeline dasar, auto scan)
+builder.Services.AddAIDispatcherCore();
+
+// OPSIONAL - Aktifkan pipeline lanjutan (retry, timeout, circuit breaker, dsb)
+builder.Services.AddAIDispatcherAdvanced();
+
+// OPSIONAL - Konfigurasi global
+// builder.Services.Configure<DispatcherOptions>(opt => { ... });
+```
+
+##  🏷️ Attribute Support
+```sh
+[WithPriority(int)]
+Tentukan prioritas handler notification (angka lebih kecil = prioritas lebih tinggi).
+
+[WithTimeout(int ms)]
+Batasi waktu maksimal eksekusi handler/notification (overrides default timeout).
+```
+
 
  ## 🛠️ Contoh Penggunaan
 Request Handler (CQRS)
@@ -87,16 +114,37 @@ var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { I
 | DI Friendly                  | ✔️           |
 | Blazor Friendly              | ✔️           |
 
+  
+##  🛠️ Pipeline Behaviors
+Untuk Request/Command/Query
+| Behavior                     | Cara Registrasi                                                  | Deskripsi Singkat                                                 |
+| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+| **LoggingBehavior**          | `AddScoped<IPipelineBehavior<,>, LoggingBehavior<,>>()`          | Mencatat log setiap eksekusi request/command/query                |
+| **ExceptionBehavior**        | `AddScoped<IPipelineBehavior<,>, ExceptionBehavior<,>>()`        | Menangkap dan menangani error di seluruh pipeline                 |
+| **RetryBehavior**            | `AddScoped<IPipelineBehavior<,>, RetryBehavior<,>>()`            | Otomatis mencoba ulang handler jika terjadi error, berbasis Polly |
+| **TimeoutBehavior**          | `AddScoped<IPipelineBehavior<,>, TimeoutBehavior<,>>()`          | Membatasi waktu maksimal eksekusi handler, auto-cancel jika lama  |
+| **CircuitBreakerBehavior**   | `AddScoped<IPipelineBehavior<,>, CircuitBreakerBehavior<,>>()`   | Memutus eksekusi handler sementara jika error berulang-ulang      |
+| **PerformanceBehavior**      | `AddScoped<IPipelineBehavior<,>, PerformanceBehavior<,>>()`      | Memberi warning/log jika eksekusi handler melebihi threshold      |
+| **ValidationBehavior**       | `AddScoped<IPipelineBehavior<,>, ValidationBehavior<,>>()`       | Validasi otomatis request/command, cocok untuk FluentValidation   |
+| **CachingBehavior**          | `AddScoped<IPipelineBehavior<,>, CachingBehavior<,>>()`          | Cache hasil handler/query agar response lebih cepat               |
+| **PrePostProcessorBehavior** | `AddScoped<IPipelineBehavior<,>, PrePostProcessorBehavior<,>>()` | Mendukung hook kode sebelum/sesudah handler (ala MediatR)         |
 
-AIDispatcher menghadirkan keunggulan dengan penambahan fitur advanced seperti parallel notification, priority, built-in retry/circuit breaker, dan pipeline monitoring, siap produksi di aplikasi Anda.
+Untuk Notification
+| Behavior                               | Cara Registrasi                                                                      | Deskripsi Singkat                            |
+| -------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
+| **LoggingNotificationBehavior**        | `AddScoped<INotificationPipelineBehavior<>, LoggingNotificationBehavior<>>()`        | Logging setiap eksekusi notification handler |
+| **NotificationExceptionBehavior**      | `AddScoped<INotificationPipelineBehavior<>, NotificationExceptionBehavior<>>()`      | Tangani error di notification handler        |
+| **RetryNotificationBehavior**          | `AddScoped<INotificationPipelineBehavior<>, RetryNotificationBehavior<>>()`          | Retry notification handler jika gagal        |
+| **NotificationTimeoutBehavior**        | `AddScoped<INotificationPipelineBehavior<>, NotificationTimeoutBehavior<>>()`        | Timeout untuk handler notification           |
+| **CircuitBreakerNotificationBehavior** | `AddScoped<INotificationPipelineBehavior<>, CircuitBreakerNotificationBehavior<>>()` | Putus sementara handler gagal berulang       |
+| **NotificationPerformanceBehavior**    | `AddScoped<INotificationPipelineBehavior<>, NotificationPerformanceBehavior<>>()`    | Warning jika handler notifikasi lambat       |
 
 
-##  💡 Migrasi dari MediatR
-- Interface mirip (IRequest, INotification, IRequestHandler, INotificationHandler)
+Pre & Post Processor (Opsional, Advanced)
+- IRequestPreProcessor: Eksekusi custom logic sebelum handler dijalankan (misal: logging, auth).
+- IRequestPostProcessor: Eksekusi custom logic setelah handler selesai (misal: audit, metrics).
 
-- Pipeline behavior mirip MediatR, lebih mudah di-extend
 
-- Tidak perlu konfigurasi rumit, tinggal ganti DI dan handler
 
 ##    📚 Lisensi
 MIT © 2025 Gani Putras

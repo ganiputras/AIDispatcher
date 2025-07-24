@@ -12,6 +12,11 @@
 
 AIDispatcher adalah library .NET open-source untuk CQRS, Pipeline Behavior, dan Notification Dispatcher modern — terinspirasi MediatR, namun lebih modular, lebih fleksibel, dan lebih mudah dikembangkan.
 
+##  💡 Integrasi & Kompatibilitas
+AIDispatcher mengadopsi interface dan pola standar CQRS yang sudah umum di komunitas .NET (IRequest, INotification, dll), sehingga mudah diadopsi untuk proyek baru maupun migrasi dari solusi lain.
+Semua pipeline dan behavior bersifat modular, dapat diaktifkan atau dikustomisasi sesuai kebutuhan aplikasi.
+
+
 ## ✨ Fitur Utama
 
 - Pipeline Behavior Modular: Logging, Retry, Timeout, Circuit Breaker, Exception Handling, Performance Monitoring, Pre/Post Processor
@@ -109,9 +114,6 @@ var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { I
 | DI Friendly                  | ✔️           |
 | Blazor Friendly              | ✔️           |
 
-
-
-
   
 ##  🛠️ Pipeline Behaviors
 Untuk Request/Command/Query
@@ -141,15 +143,6 @@ Untuk Notification
 Pre & Post Processor (Opsional, Advanced)
 - IRequestPreProcessor: Eksekusi custom logic sebelum handler dijalankan (misal: logging, auth).
 - IRequestPostProcessor: Eksekusi custom logic setelah handler selesai (misal: audit, metrics).
-
-
-
-##  💡 Migrasi dari MediatR?
-- Interface mirip (IRequest, INotification, IRequestHandler, INotificationHandler)
-- Pipeline behavior mirip MediatR, lebih mudah di-extend
-- Tidak perlu konfigurasi rumit, tinggal ganti DI dan handler
-
-
 
 
 

@@ -1,5 +1,6 @@
-﻿using AIDispatcher.Core;
-using AIDispatcher.Core.Interfaces;
+﻿using AIDispatcher.Core.Interfaces;
+
+namespace AIDispatcher.Core.Behaviors;
 
 /// <summary>
 /// Behavior pipeline untuk mengeksekusi pre-processor sebelum handler dan post-processor setelah handler.

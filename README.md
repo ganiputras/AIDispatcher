@@ -117,27 +117,29 @@ var order = await dispatcher.Send<GetOrderQuery, OrderDto>(new GetOrderQuery { I
   
 ##  🛠️ Pipeline Behaviors
 Untuk Request/Command/Query
-| Behavior                     | Cara Registrasi                                                  | Deskripsi Singkat                                                 |
-| ---------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
-| **LoggingBehavior**          | `AddScoped<IPipelineBehavior<,>, LoggingBehavior<,>>()`          | Mencatat log setiap eksekusi request/command/query                |
-| **ExceptionBehavior**        | `AddScoped<IPipelineBehavior<,>, ExceptionBehavior<,>>()`        | Menangkap dan menangani error di seluruh pipeline                 |
-| **RetryBehavior**            | `AddScoped<IPipelineBehavior<,>, RetryBehavior<,>>()`            | Otomatis mencoba ulang handler jika terjadi error, berbasis Polly |
-| **TimeoutBehavior**          | `AddScoped<IPipelineBehavior<,>, TimeoutBehavior<,>>()`          | Membatasi waktu maksimal eksekusi handler, auto-cancel jika lama  |
-| **CircuitBreakerBehavior**   | `AddScoped<IPipelineBehavior<,>, CircuitBreakerBehavior<,>>()`   | Memutus eksekusi handler sementara jika error berulang-ulang      |
-| **PerformanceBehavior**      | `AddScoped<IPipelineBehavior<,>, PerformanceBehavior<,>>()`      | Memberi warning/log jika eksekusi handler melebihi threshold      |
-| **ValidationBehavior**       | `AddScoped<IPipelineBehavior<,>, ValidationBehavior<,>>()`       | Validasi otomatis request/command, cocok untuk FluentValidation   |
-| **CachingBehavior**          | `AddScoped<IPipelineBehavior<,>, CachingBehavior<,>>()`          | Cache hasil handler/query agar response lebih cepat               |
-| **PrePostProcessorBehavior** | `AddScoped<IPipelineBehavior<,>, PrePostProcessorBehavior<,>>()` | Mendukung hook kode sebelum/sesudah handler (ala MediatR)         |
+| Behavior                 | Cara Registrasi                                                 | Deskripsi Singkat                                    |
+| ------------------------ | --------------------------------------------------------------- | ---------------------------------------------------- |
+| LoggingBehavior          | AddScoped\<IPipelineBehavior<,>, LoggingBehavior<,>>()          | Logging setiap eksekusi request/command/query        |
+| ExceptionBehavior        | AddScoped\<IPipelineBehavior<,>, ExceptionBehavior<,>>()        | Menangani error di seluruh pipeline                  |
+| RetryBehavior            | AddScoped\<IPipelineBehavior<,>, RetryBehavior<,>>()            | Retry otomatis jika terjadi error (Polly)            |
+| TimeoutBehavior          | AddScoped\<IPipelineBehavior<,>, TimeoutBehavior<,>>()          | Membatasi waktu maksimal eksekusi handler            |
+| CircuitBreakerBehavior   | AddScoped\<IPipelineBehavior<,>, CircuitBreakerBehavior<,>>()   | Putus handler sementara jika error berulang-ulang    |
+| PerformanceBehavior      | AddScoped\<IPipelineBehavior<,>, PerformanceBehavior<,>>()      | Warning/log jika handler lambat                      |
+| ValidationBehavior       | AddScoped\<IPipelineBehavior<,>, ValidationBehavior<,>>()       | Validasi otomatis request/command (FluentValidation) |
+| CachingBehavior          | AddScoped\<IPipelineBehavior<,>, CachingBehavior<,>>()          | Cache hasil handler/query                            |
+| PrePostProcessorBehavior | AddScoped\<IPipelineBehavior<,>, PrePostProcessorBehavior<,>>() | Hook sebelum/sesudah handler                         |
+
 
 Untuk Notification
-| Behavior                               | Cara Registrasi                                                                      | Deskripsi Singkat                            |
-| -------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------- |
-| **LoggingNotificationBehavior**        | `AddScoped<INotificationPipelineBehavior<>, LoggingNotificationBehavior<>>()`        | Logging setiap eksekusi notification handler |
-| **NotificationExceptionBehavior**      | `AddScoped<INotificationPipelineBehavior<>, NotificationExceptionBehavior<>>()`      | Tangani error di notification handler        |
-| **RetryNotificationBehavior**          | `AddScoped<INotificationPipelineBehavior<>, RetryNotificationBehavior<>>()`          | Retry notification handler jika gagal        |
-| **NotificationTimeoutBehavior**        | `AddScoped<INotificationPipelineBehavior<>, NotificationTimeoutBehavior<>>()`        | Timeout untuk handler notification           |
-| **CircuitBreakerNotificationBehavior** | `AddScoped<INotificationPipelineBehavior<>, CircuitBreakerNotificationBehavior<>>()` | Putus sementara handler gagal berulang       |
-| **NotificationPerformanceBehavior**    | `AddScoped<INotificationPipelineBehavior<>, NotificationPerformanceBehavior<>>()`    | Warning jika handler notifikasi lambat       |
+| Behavior                           | Cara Registrasi                                                                     | Deskripsi Singkat                           |
+| ---------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------- |
+| LoggingNotificationBehavior        | AddScoped\<INotificationPipelineBehavior<>, LoggingNotificationBehavior<>>()        | Logging eksekusi handler notifikasi         |
+| NotificationExceptionBehavior      | AddScoped\<INotificationPipelineBehavior<>, NotificationExceptionBehavior<>>()      | Menangani error pada handler notifikasi     |
+| RetryNotificationBehavior          | AddScoped\<INotificationPipelineBehavior<>, RetryNotificationBehavior<>>()          | Retry handler notifikasi jika terjadi error |
+| NotificationTimeoutBehavior        | AddScoped\<INotificationPipelineBehavior<>, NotificationTimeoutBehavior<>>()        | Timeout handler notifikasi                  |
+| CircuitBreakerNotificationBehavior | AddScoped\<INotificationPipelineBehavior<>, CircuitBreakerNotificationBehavior<>>() | Putus sementara handler notifikasi error    |
+| NotificationPerformanceBehavior    | AddScoped\<INotificationPipelineBehavior<>, NotificationPerformanceBehavior<>>()    | Warning jika handler notifikasi lambat      |
+
 
 
 Pre & Post Processor (Opsional, Advanced)
